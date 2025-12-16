@@ -103,7 +103,7 @@ export default function LuggageBookingForm() {
       }
 
       // Send request to backend
-      const res = await fetch("http://localhost:3000/api/bookings", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // include token
