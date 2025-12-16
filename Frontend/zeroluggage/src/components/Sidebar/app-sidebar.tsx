@@ -1,15 +1,31 @@
 "use client"
 
 import type React from "react"
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Home, CalendarPlus, Clock, Wallet, Crown, ShieldCheck, LogOut } from "lucide-react"
+
+import { useSidebar } from "@/components/ui/sidebar"
+
+import {
+  Home,
+  CalendarPlus,
+  Clock,
+  Wallet,
+  Crown,
+  ShieldCheck,
+  LogOut,
+} from "lucide-react"
 
 type NavItem = {
   label: string
@@ -34,21 +50,21 @@ const nav: NavItem[] = [
 ]
 
 const handleLogout = async () => {
-    try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-    } catch (err) {
-      console.error("Logout error", err)
-    } finally {
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
-      window.location.href = "/" //home page
-    }
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+  } catch (err) {
+    console.error("Logout error", err)
+  } finally {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    window.location.href = "/"
   }
+}
 
 function ItemLink({
   href = "#",
@@ -67,23 +83,14 @@ function ItemLink({
     <Link
       href={href}
       className={cn(
-        "group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
-        "hover:bg-sky-50 hover:text-sky-700",
+        "group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all",
         active
-          ? "bg-sky-100 text-sky-700 font-semibold shadow-md"
-          : "text-gray-700",
-        className,
+          ? "bg-sky-100 text-sky-700"
+          : "text-gray-700 hover:bg-sky-50 hover:text-sky-700",
+        className
       )}
-      aria-current={active ? "page" : undefined}
     >
-      {Icon && (
-        <Icon
-          className={cn(
-            "size-5 shrink-0 transition-colors duration-200",
-            active ? "text-sky-600" : "text-gray-400 group-hover:text-sky-500"
-          )}
-        />
-      )}
+      {Icon && <Icon className="size-5 text-gray-400 group-hover:text-sky-500" />}
       <span className="truncate">{label}</span>
     </Link>
   )
@@ -91,24 +98,26 @@ function ItemLink({
 
 export function AppSidebar({ className }: { className?: string }) {
   const pathname = usePathname()
+  const { open } = useSidebar() // 🔥 controlled by SidebarTrigger
+
   const isActive = (href?: string) => (href ? pathname === href : false)
-  const isSectionActive = (prefix: string) => pathname.startsWith(prefix)
 
   return (
     <div
       className={cn(
-        "flex h-full w-64 flex-col border-r bg-white shadow-lg",
+        // 🔥 KEY RESPONSIVE + COLLAPSE LOGIC
+        "fixed inset-y-0 left-0 z-40 w-64 flex-col border-r bg-white shadow-lg transition-transform duration-300",
+        open ? "translate-x-0" : "-translate-x-full",
+        "md:static md:translate-x-0 md:flex",
         className
       )}
-      role="navigation"
-      aria-label="Sidebar"
     >
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 px-5 bg-sky-50 rounded-b-lg shadow-sm">
-        <div className="size-7 rounded-full bg-sky-600 flex items-center justify-center text-white font-bold">
+      <div className="flex h-16 items-center gap-2 px-5 bg-sky-50">
+        <div className="size-7 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold">
           Z
         </div>
-        <span className="text-xl font-bold tracking-tight text-sky-700">
+        <span className="text-xl font-bold text-sky-700">
           ZeroLuggage
         </span>
       </div>
@@ -118,43 +127,31 @@ export function AppSidebar({ className }: { className?: string }) {
       {/* Navigation */}
       <ScrollArea className="flex-1">
         <div className="px-3 py-4 space-y-1">
-          {nav.map((item) => {
-            if (item.children?.length) {
-              const sectionPrefix = "/dashboard/bookings"
-              return (
-                <Accordion
-                  key={item.label}
-                  type="single"
-                  collapsible
-                  defaultValue={isSectionActive(sectionPrefix) ? item.label : undefined}
-                  className="mb-1 rounded-lg"
-                >
-                  <AccordionItem value={item.label}>
-                    <AccordionTrigger className="px-4 py-3 hover:bg-sky-50 rounded-lg transition-all duration-200">
-                      <div className="flex items-center gap-3">
-                        {item.icon && <item.icon className="size-5 text-gray-400 group-hover:text-sky-500" />}
-                        <span className="text-sm font-medium text-gray-700">{item.label}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="mt-1 flex flex-col gap-1">
-                        {item.children.map((child) => (
-                          <ItemLink
-                            key={child.label}
-                            href={child.href}
-                            icon={child.icon}
-                            label={child.label}
-                            active={isActive(child.href)}
-                            className="ml-6"
-                          />
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              )
-            }
-            return (
+          {nav.map((item) =>
+            item.children ? (
+              <Accordion key={item.label} type="single" collapsible>
+                <AccordionItem value={item.label}>
+                  <AccordionTrigger className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {item.icon && <item.icon className="size-5 text-gray-400" />}
+                      {item.label}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {item.children.map((child) => (
+                      <ItemLink
+                        key={child.label}
+                        href={child.href}
+                        icon={child.icon}
+                        label={child.label}
+                        active={isActive(child.href)}
+                        className="ml-6"
+                      />
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            ) : (
               <ItemLink
                 key={item.label}
                 href={item.href}
@@ -163,18 +160,18 @@ export function AppSidebar({ className }: { className?: string }) {
                 active={isActive(item.href)}
               />
             )
-          })}
+          )}
         </div>
       </ScrollArea>
 
       {/* Logout */}
       <div className="px-5 py-6 border-t">
         <Button
-        onClick={handleLogout}
+          onClick={handleLogout}
           variant="outline"
-          className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-sky-50 hover:text-sky-700"
+          className="w-full gap-2"
         >
-          <LogOut className="size-5 text-gray-500 group-hover:text-sky-500" />
+          <LogOut className="size-5" />
           Log out
         </Button>
       </div>
@@ -182,4 +179,4 @@ export function AppSidebar({ className }: { className?: string }) {
   )
 }
 
-export default AppSidebar 
+export default AppSidebar
