@@ -12,9 +12,7 @@ import cors from "cors";
 import userRoutes from "./Routes/user.routes";
 import luggageRoutes from "./Routes/luggage.routes";
 import bookingRoutes from "./Routes/booking.routes";
-import deliveryRoutes from "./Routes/delivery.routes";
-import trackingRoutes from "./Routes/tracking.routes";
-import  paymentRoutes  from "./Routes/payment.routes";
+
 import { errorHandler } from "./Middleware/errorMiddleware";
 import authRoutes from "./Routes/auth.routes";
 
@@ -37,9 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/luggage", luggageRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/delivery", deliveryRoutes);
-app.use("/api/tracking", trackingRoutes);
-app.use("/api/payment", paymentRoutes);
+
 
 // ❗ MUST BE LAST
 app.use(errorHandler);
