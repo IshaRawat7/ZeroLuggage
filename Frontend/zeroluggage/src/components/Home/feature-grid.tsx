@@ -8,8 +8,9 @@ import { motion } from "framer-motion"
 type Feature = {
   title: string
   description: string
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
 }
+
 
 const howItWorks: Feature[] = [
   { title: "Book Effortlessly", description: "Schedule pickup in minutes with flexible timing that fits your trip.", icon: CalendarClock },
@@ -40,7 +41,7 @@ function Grid({ items }: { items: Feature[] }) {
             <Card className="h-full border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 rounded-xl hover:scale-105 transform-gpu">
               <CardHeader className="flex flex-col items-center gap-3 py-6">
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-sky-400 to-sky-600 text-white shadow-md">
-                  <Icon className="h-6 w-6" aria-hidden />
+                  <Icon className="h-6 w-6" aria-hidden="true" />
                 </span>
                 <CardTitle className="text-center text-lg font-semibold mt-2">{item.title}</CardTitle>
               </CardHeader>
