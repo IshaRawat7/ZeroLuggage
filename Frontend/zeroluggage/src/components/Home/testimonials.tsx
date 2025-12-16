@@ -16,52 +16,52 @@ type Testimonial = {
 
 const testimonials: Testimonial[] = [
   {
-    name: "Alice Johnson",
-    role: "Business Traveler",
-    quote: "Made my layover stress‑free. Booked in minutes and my bags arrived right on time. Truly hassle-free!",
-    initials: "AJ",
+    name: "Rohit Sharma",
+    role: "Trekker",
+    quote: "The service made my Kedarnath trek so easy. My bags were delivered safely while I enjoyed the climb.",
+    initials: "RS",
     rating: 5,
-    location: "USA",
+    location: "Rishikesh, Uttarakhand",
   },
   {
-    name: "Mark Chen",
+    name: "Ananya Singh",
     role: "Photographer",
-    quote: "Loved the real‑time tracking. I could explore without worrying about my gear. Professional and reliable.",
-    initials: "MC",
+    quote: "Exploring Jim Corbett without worrying about luggage was amazing. Real‑time updates kept me stress‑free.",
+    initials: "AS",
     rating: 5,
-    location: "China",
+    location: "Nainital, Uttarakhand",
   },
   {
-    name: "Sarah Lee",
+    name: "Vikram Joshi",
     role: "Vacationer",
-    quote: "Fantastic experience! The courier was professional and super punctual. Everything arrived perfectly.",
-    initials: "SL",
+    quote: "From Haridwar to Mussoorie, everything was handled perfectly. The courier was punctual and professional.",
+    initials: "VJ",
     rating: 4,
-    location: "Canada",
+    location: "Haridwar, Uttarakhand",
   },
   {
-    name: "John Miller",
-    role: "Conference Speaker",
-    quote: "ZeroLuggage handled everything seamlessly between hotel and venue. Excellent for busy schedules.",
-    initials: "JM",
+    name: "Priya Mehra",
+    role: "Conference Attendee",
+    quote: "Attending a yoga retreat in Rishikesh was seamless thanks to ZeroLuggage. No stress about my bags at all.",
+    initials: "PM",
     rating: 5,
-    location: "UK",
+    location: "Rishikesh, Uttarakhand",
   },
   {
-    name: "Maria Gomez",
+    name: "Arjun Rawat",
     role: "Backpacker",
-    quote: "Affordable and reliable. It let me enjoy the city hands‑free for a day. Great service for travelers.",
-    initials: "MG",
+    quote: "Affordable and reliable. I roamed freely in Almora without carrying my backpack. Perfect for solo travelers.",
+    initials: "AR",
     rating: 4,
-    location: "Spain",
+    location: "Almora, Uttarakhand",
   },
   {
-    name: "David Park",
-    role: "Frequent Flyer",
-    quote: "Secure seals and clear updates. Easily the best luggage service I’ve used. Highly recommended!",
-    initials: "DP",
+    name: "Neha Kapoor",
+    role: "Frequent Traveler",
+    quote: "Secure seals and timely updates while visiting Auli. Truly the best luggage service I’ve experienced.",
+    initials: "NK",
     rating: 5,
-    location: "South Korea",
+    location: "Auli, Uttarakhand",
   },
 ]
 
@@ -70,7 +70,7 @@ export function Testimonials() {
     <section
       id="reviews"
       aria-labelledby="reviews-title"
-      className="mx-auto max-w-7xl px-6 py-16  rounded-xl"
+      className="mx-auto max-w-7xl px-6 py-16 rounded-xl"
     >
       <h2 id="reviews-title" className="mb-12 text-center text-3xl font-bold text-sky-800">
         What Our Customers Say
