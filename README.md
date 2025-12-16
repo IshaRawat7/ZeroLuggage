@@ -15,7 +15,7 @@ ZeroLuggage is a modern web application that simplifies travel planning. Explore
 - Browse popular travel destinations with images, descriptions, and locations.
 - Add, edit, and manage travel schedules.
 - Responsive and interactive UI using **React**, **Next.js**, and **Tailwind CSS**.
-- User authentication (optional AWS Cognito integration).
+- User authentication.
 - Integration with backend APIs for dynamic content.
 - Modern design with ShadCN UI components for enhanced UX.
 
@@ -45,3 +45,9 @@ Follow these steps to run the project locally:
 ```bash
 git clone https://github.com/IshaRawat7/ZeroLuggage.git
 cd ZeroLuggage/Frontend/zeroluggage
+### 2 Run in Terminal
+
+```bash
+cd Frontend/zeroluggage
+npm i
+npm run dev
