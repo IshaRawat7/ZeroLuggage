@@ -24,7 +24,8 @@ export function LoginForm() {
   const router = useRouter();
 
   // Backend URL
-  const API = "http://localhost:3000/api/users";
+  const API = `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
+
 
   // LOGIN Handler ------------------------------------
  const handleLogin = async () => {
