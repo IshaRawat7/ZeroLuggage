@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  phone     String
+
+  bookings  Booking[]   // ✅ relation
+
+  createdAt DateTime @default(now())
+}
+
+model Booking {
+  id              Int           @id @default(autoincrement())
+  bookingCode     String        @unique
+
+  pickupLocation  String
+  dropoffLocation String
+
+  pickupDate      DateTime
+  dropoffDate     DateTime
+
+  duration        String        // "2 hrs", "4 hrs", "All day"
+  luggageCount    Int
+  estimatedFare   Float
+
+  status          BookingStatus @default(PENDING)
+
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id])
+
+  luggageItems    Luggage[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Luggage {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String?
+  bookingId Int
+
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}

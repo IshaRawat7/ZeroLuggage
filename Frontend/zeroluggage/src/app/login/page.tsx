@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function login() {
   return (
-    <main className=" h-full bg-sky-100">
+    <main className=" min-h-screen bg-sky-100">
       <section className="container  mx-auto px-4 py-24 md:py-24">
         <div className="mx-auto grid max-w-5xl items-stretch gap-8 md:grid-cols-2">
           {/* Left: Form */}

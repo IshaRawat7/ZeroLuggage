@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar/app-sidebar"
-import Navbar from "@/components/Navbar/NavbarD";
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,12 +37,14 @@ export default function RootLayout({
             <div className="flex flex-col flex-1 min-w-0">
               {/* Navbar spans full width of main area */}
               <div className="w-full">
-                <Navbar />
+                
               </div>
 
               {/* Content fills remaining space */}
               <main className="flex-1 overflow-y-auto px-8 py-8">
+                
                 <SidebarTrigger />
+                
                 {children}
               </main>
             </div>
