@@ -45,9 +45,14 @@ Follow these steps to run the project locally:
 ```bash
 git clone https://github.com/IshaRawat7/ZeroLuggage.git
 cd ZeroLuggage/Frontend/zeroluggage
-### 2 Run in Terminal
+
+```
+
+
+
+### Run in Terminal
 
 ```bash
-cd Frontend/zeroluggage
 npm i
 npm run dev
+```
