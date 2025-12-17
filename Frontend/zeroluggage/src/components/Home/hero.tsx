@@ -13,7 +13,7 @@ export function Hero() {
       className="bg-sky-50"
       id="book"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:py-16 md:grid-cols-2 md:py-24">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-12 sm:py-16 md:grid-cols-2 md:py-24">
         {/* Left Content */}
         <div className="space-y-5 sm:space-y-6">
           {/* Heading */}
@@ -21,7 +21,7 @@ export function Hero() {
             id="hero-title"
             className="
               relative inline-block font-bold tracking-tight text-sky-900
-              text-2xl sm:text-3xl md:text-5xl
+              text-xl sm:text-2xl md:text-5xl
             "
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export function Hero() {
           <motion.p
             className="
               text-muted-foreground leading-relaxed
-              text-base sm:text-lg
+              text-sm sm:text-lg
             "
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -79,6 +79,7 @@ export function Hero() {
             <Button
               asChild
               className="
+                w-full sm:w-auto
                 bg-sky-600 text-white shadow-lg shadow-sky-300/30
                 transition-transform sm:hover:scale-105
               "
@@ -90,6 +91,7 @@ export function Hero() {
               asChild
               variant="outline"
               className="
+                w-full sm:w-auto
                 border-sky-600 text-sky-900
                 hover:bg-sky-100 transition-transform sm:hover:scale-105
               "
@@ -102,7 +104,7 @@ export function Hero() {
         {/* Right Hero 3D */}
         <motion.div
           aria-hidden
-          className="relative mx-auto md:mx-0 md:justify-self-end"
+          className="relative mx-auto w-full max-w-md md:mx-0 md:justify-self-end px-4"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -115,11 +117,11 @@ export function Hero() {
             <Hero3D />
           </motion.div>
 
-          {/* Floating badges (hide on mobile) */}
+          {/* Floating badges */}
           <motion.div
             className="
-              absolute top-0 left-0 -translate-x-6 -translate-y-6
-              hidden sm:flex flex-col gap-2
+              sm:absolute sm:top-0 sm:left-0 sm:-translate-x-6 sm:-translate-y-6
+              flex flex-col gap-2 mt-4 sm:mt-0
             "
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}

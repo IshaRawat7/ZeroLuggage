@@ -2,6 +2,8 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import Image from "next/image"
+import Img3 from "@/public/lugg.png"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -50,14 +52,36 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 w-full bg-sky-600/90 backdrop-blur-md shadow-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 md:py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white text-sky-600 font-bold text-lg shadow">
-            Z
-          </span>
-          <span className="font-bold text-white text-lg md:text-xl">
-            ZeroLuggage
-          </span>
-        </Link>
+       <Link href="/" className="group flex items-center gap-2">
+  <span className="relative flex h-9 w-9 md:h-10 md:w-10 items-center justify-center">
+    <Image
+      src={Img3}
+      alt="ZeroLuggage logo"
+      width={80}
+      height={80}
+      priority
+      className="
+      rounded-md
+        object-contain
+        transition-all duration-300
+        group-hover:scale-110
+        group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]
+      "
+    />
+  </span>
+
+  <span
+    className="
+      font-bold tracking-tight
+      text-white text-lg md:text-2xl
+      transition-colors duration-300
+      group-hover:text-black
+    "
+  >
+    ZeroLuggage
+  </span>
+</Link>
+
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6">
@@ -86,7 +110,7 @@ export function SiteHeader() {
             asChild
             className="bg-black text-white px-4 md:px-6 hover:bg-gray-800"
           >
-            <Link href="#book">Book Now</Link>
+            <Link href="./dasboard">Book Now</Link>
           </Button>
 
           {/* Avatar */}
@@ -102,7 +126,7 @@ export function SiteHeader() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/dasboard">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
