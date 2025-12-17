@@ -1,5 +1,6 @@
 "use client"
 
+import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip, Legend } from "recharts"
 
@@ -20,49 +21,68 @@ const COLORS: Record<string, string> = {
 
 export function DeliveryStatusChart() {
   return (
-    <Card className="border">
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-foreground">Delivery Status Distribution</CardTitle>
-        <p className="text-xs text-muted-foreground">Current status of all deliveries.</p>
-      </CardHeader>
-      <CardContent className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={55}
-              outerRadius={80}
-              paddingAngle={3}
-              stroke="hsl(var(--background))"
-              strokeWidth={2}
-            >
-              {data.map((entry) => (
-                <Cell key={entry.name} fill={COLORS[entry.name]} />
-              ))}
-            </Pie>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <Card className="border">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-foreground">
+            Delivery Status Distribution
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Current status of all deliveries.
+          </p>
+        </CardHeader>
+        <CardContent className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={55}
+                outerRadius={80}
+                paddingAngle={3}
+                stroke="hsl(var(--background))"
+                strokeWidth={2}
+                isAnimationActive={true}
+                animationDuration={1200} // 1.2s animation
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={entry.name}
+                    fill={COLORS[entry.name]}
+                    // Optional: Add individual animation delays for each slice
+                    strokeWidth={1}
+                  />
+                ))}
+              </Pie>
 
-            <Tooltip
-              contentStyle={{
-                background: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                color: "hsl(var(--foreground))",
-                borderRadius: 8,
-              }}
-            />
-            <Legend
-              verticalAlign="bottom"
-              height={24}
-              formatter={(value) => (
-                <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 12 }}>{value}</span>
-              )}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+              <Tooltip
+                contentStyle={{
+                  background: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  color: "hsl(var(--foreground))",
+                  borderRadius: 8,
+                }}
+              />
+              <Legend
+                verticalAlign="bottom"
+                height={24}
+                formatter={(value) => (
+                  <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 12 }}>
+                    {value}
+                  </span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }

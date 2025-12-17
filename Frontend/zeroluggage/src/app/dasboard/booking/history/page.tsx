@@ -1,64 +1,96 @@
 "use client"
 
-import { MapPin, Package, Clock } from "lucide-react"
+import { MapPin, Package, Clock, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import dynamic from "next/dynamic"
+import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 
-const TrackingMap = dynamic(() => import("@/components/dashboard/tracking-map"), { ssr: false })
+const TrackingMap = dynamic(
+  () => import("@/components/dashboard/tracking-map"),
+  { ssr: false }
+)
 
 export default function TrackingPage() {
+  const router = useRouter()
+
   const trackingData = {
-    trackingId: "ZL-202400123456",
-    currentLocation: "Mumbai Airport (BOM), India",
-    estimatedDelivery: "2024-08-15, 14:30 IST",
+    trackingId: "ZL-UK-20240098",
+    currentLocation: "On Route via Rudraprayag, Uttarakhand",
+    estimatedDelivery: "2024-08-15, 18:00 IST",
     status: "In Transit",
-    progress: 2, // Current step (1-4)
-    pickupLocation: { lat: 19.0895, lng: 72.8656 }, // Mumbai Airport
-    deliveryLocation: { lat: 28.7041, lng: 77.1025 }, // Delhi
+    progress: 2,
+    pickupLocation: { lat: 30.7346, lng: 79.0669 }, // Kedarnath
+    deliveryLocation: { lat: 30.0869, lng: 78.2676 }, // Rishikesh
   }
 
   const steps = [
-    { id: 1, label: "Luggage Picked Up" },
+    { id: 1, label: "Picked from Kedarnath" },
     { id: 2, label: "In Transit" },
     { id: 3, label: "Out for Delivery" },
-    { id: 4, label: "Delivered" },
+    { id: 4, label: "Delivered at Rishikesh" },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Live Luggage Tracking</h1>
-          <p className="text-gray-600">Follow your luggage in real-time until it reaches its destination.</p>
-        </div>
+      <div className="max-w-7xl mx-auto space-y-8">
 
-        <div className="mb-8 bg-white p-6 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-900 mb-8">Delivery Progress</h2>
-          <div className="flex items-center justify-between gap-2">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            Live Luggage Tracking
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Real-time tracking for your spiritual journey luggage.
+          </p>
+        </motion.div>
+
+        {/* Progress Bar */}
+        <Card className="p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+            <Truck className="w-5 h-5 text-blue-600" />
+            Delivery Progress
+          </h2>
+
+          <div className="flex items-center justify-between gap-3">
             {steps.map((step, index) => (
-              <div key={step.id} className="flex flex-col items-center flex-1">
-                {/* Step Circle */}
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold mb-3 flex-shrink-0 ${
-                    step.id <= trackingData.progress ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-600"
-                  }`}
+              <div key={step.id} className="flex flex-col items-center flex-1 relative">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`w-11 h-11 rounded-full flex items-center justify-center font-semibold mb-3
+                    ${
+                      step.id <= trackingData.progress
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "bg-gray-300 text-gray-600"
+                    }`}
                 >
                   {step.id}
-                </div>
+                </motion.div>
 
-                {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className="flex-1 h-1 mb-3 -mx-2 w-full">
-                    <div className={`h-full ${step.id < trackingData.progress ? "bg-blue-600" : "bg-gray-300"}`} />
+                  <div className="absolute top-5 left-[55%] w-full h-1 -z-10">
+                    <div
+                      className={`h-full ${
+                        step.id < trackingData.progress
+                          ? "bg-blue-600"
+                          : "bg-gray-300"
+                      }`}
+                    />
                   </div>
                 )}
 
-                {/* Step Label */}
                 <p
-                  className={`text-xs md:text-sm text-center leading-tight ${
-                    step.id <= trackingData.progress ? "text-gray-900 font-medium" : "text-gray-600"
+                  className={`text-xs md:text-sm text-center ${
+                    step.id <= trackingData.progress
+                      ? "text-gray-900 font-medium"
+                      : "text-gray-500"
                   }`}
                 >
                   {step.label}
@@ -66,61 +98,75 @@ export default function TrackingPage() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Map Section */}
-          <div className="lg:col-span-2">
-            <Card className="p-0 h-80 overflow-hidden">
+
+          {/* Map */}
+          <motion.div
+            className="lg:col-span-2"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <Card className="p-0 h-[360px] overflow-hidden shadow-md">
               <TrackingMap
                 pickupLocation={trackingData.pickupLocation}
                 deliveryLocation={trackingData.deliveryLocation}
               />
             </Card>
-          </div>
+          </motion.div>
 
-          {/* Delivery Details */}
-          <div>
-            <Card className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Delivery Details</h3>
-              <p className="text-gray-600 text-sm mb-6">Detailed information about your shipment.</p>
+          {/* Details */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <Card className="p-6 shadow-md">
+              <h3 className="text-xl font-bold mb-1">Delivery Details</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Kedarnath → Rishikesh route details
+              </p>
 
               <div className="space-y-6">
-                {/* Tracking ID */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-600">Tracking ID</span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900">{trackingData.trackingId}</p>
-                </div>
-
-                {/* Current Location */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-600">Current Location</span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900">{trackingData.currentLocation}</p>
-                </div>
-
-                {/* Estimated Delivery */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-600">Estimated Delivery</span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900">{trackingData.estimatedDelivery}</p>
-                </div>
+                <InfoRow icon={Package} label="Tracking ID" value={trackingData.trackingId} />
+                <InfoRow icon={MapPin} label="Current Location" value={trackingData.currentLocation} />
+                <InfoRow icon={Clock} label="Estimated Delivery" value={trackingData.estimatedDelivery} />
               </div>
 
-              {/* Back Button */}
-              <Button className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white">Back to Dashboard</Button>
+              <Button
+                className="w-full mt-8 bg-blue-600 hover:bg-blue-700"
+                onClick={() => router.push("/dasboard")}
+              >
+                Back to Dashboard
+              </Button>
             </Card>
-          </div>
+          </motion.div>
+
         </div>
       </div>
+    </div>
+  )
+}
+
+/* --------- Reusable Info Row --------- */
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: any
+  label: string
+  value: string
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-1">
+        <Icon className="w-5 h-5 text-blue-600" />
+        <span className="text-sm font-medium text-gray-600">{label}</span>
+      </div>
+      <p className="text-lg font-semibold text-gray-900">{value}</p>
     </div>
   )
 }

@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+
 import {
   Card,
   CardContent,
@@ -20,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+
 import {
   Package,
   Truck,
@@ -43,53 +46,66 @@ export default function DashboardPage() {
     }
   }, [])
 
+  /* -------------------- DATA -------------------- */
+
+  const stats = [
+    {
+      title: "Total Trips",
+      value: "12",
+      subtitle: "Across Uttarakhand",
+      icon: Package,
+    },
+    {
+      title: "Upcoming Deliveries",
+      value: "3",
+      subtitle: "Dehradun • Rishikesh",
+      icon: Truck,
+    },
+    {
+      title: "Pending Payments",
+      value: "₹6,250",
+      subtitle: "Due this month",
+      icon: CreditCard,
+    },
+    {
+      title: "Active Plan",
+      value: "Himalayan Pro",
+      subtitle: "Premium Coverage",
+      icon: Crown,
+    },
+  ]
+
   const rows = [
     {
-      id: "ZL0101",
+      id: "UK0101",
       status: "Delivered" as const,
       pickup: "2024-07-10",
       dropoff: "2024-07-12",
-      destination: "New York, USA",
+      destination: "Dehradun → Nainital",
       count: 2,
-      price: 120,
+      price: 1800,
     },
     {
-      id: "ZL0102",
+      id: "UK0102",
       status: "Confirmed" as const,
       pickup: "2024-08-01",
       dropoff: "2024-08-03",
-      destination: "London, UK",
+      destination: "Haridwar → Rishikesh",
       count: 3,
-      price: 180,
+      price: 2400,
     },
     {
-      id: "ZL0103",
+      id: "UK0103",
       status: "Pending" as const,
       pickup: "2024-08-15",
       dropoff: "2024-08-17",
-      destination: "Paris, France",
+      destination: "Haldwani → Almora",
       count: 1,
-      price: 60,
-    },
-    {
-      id: "ZL0104",
-      status: "Delivered" as const,
-      pickup: "2024-06-20",
-      dropoff: "2024-06-22",
-      destination: "Tokyo, Japan",
-      count: 2,
-      price: 150,
-    },
-    {
-      id: "ZL0105",
-      status: "Confirmed" as const,
-      pickup: "2024-09-05",
-      dropoff: "2024-09-07",
-      destination: "Rome, Italy",
-      count: 2,
-      price: 130,
+      price: 950,
     },
   ]
+
+  /* -------------------- STATUS BADGE -------------------- */
 
   const StatusBadge = ({
     s,
@@ -97,180 +113,202 @@ export default function DashboardPage() {
     s: "Delivered" | "Confirmed" | "Pending"
   }) => {
     const map = {
-      Delivered: "bg-emerald-100 text-emerald-700",
-      Confirmed: "bg-blue-100 text-blue-700",
-      Pending: "bg-amber-100 text-amber-800",
+      Delivered:
+        "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200",
+      Confirmed:
+        "bg-blue-100 text-blue-700 ring-1 ring-blue-200",
+      Pending:
+        "bg-amber-100 text-amber-800 ring-1 ring-amber-200",
     }
     return (
       <Badge variant="secondary" className={map[s]}>
         {s}
+        {s === "Pending" && (
+          <span className="ml-2 inline-block size-2 rounded-full bg-amber-500 animate-pulse" />
+        )}
       </Badge>
     )
   }
 
+  /* -------------------- UI -------------------- */
+
   return (
-    <div className="space-y-6">
-      
-      <h1 className="text-2xl font-semibold tracking-tight">
-        Welcome Back{userName ? `, ${userName}` : ""}!
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
+      {/* Heading */}
+      <h1 className="text-3xl font-bold tracking-tight text-black">
+        Welcome Back{userName ? `, ${userName}` : ""} !
       </h1>
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div>
-              <CardDescription>Total Bookings</CardDescription>
-              <CardTitle className="text-2xl">12</CardTitle>
-            </div>
-            <Package className="size-6 text-sky-600" />
-          </CardHeader>
-        </Card>
+      {/* -------------------- STATS -------------------- */}
+      <motion.div
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.12 } },
+        }}
+      >
+        {stats.map((item) => (
+          <motion.div
+            key={item.title}
+            variants={{
+              hidden: { opacity: 0, y: 15 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            whileHover={{ scale: 1.04 }}
+            transition={{ type: "spring", stiffness: 200 }}
+          >
+            <Card className="group relative overflow-hidden border border-sky-100 bg-white/70 backdrop-blur-md hover:shadow-xl transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-sky-400/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div>
-              <CardDescription>Upcoming Deliveries</CardDescription>
-              <CardTitle className="text-2xl">3</CardTitle>
-            </div>
-            <Truck className="size-6 text-sky-600" />
-          </CardHeader>
-        </Card>
+              <CardHeader className="relative flex flex-row items-center justify-between pb-2">
+                <div>
+                  <CardDescription className="text-xs uppercase tracking-wide">
+                    {item.title}
+                  </CardDescription>
+                  <CardTitle className="text-3xl font-bold text-sky-700">
+                    {item.value}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {item.subtitle}
+                  </p>
+                </div>
 
-        <Card className="ring-1 ring-primary/10">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div>
-              <CardDescription>Pending Payments</CardDescription>
-              <CardTitle className="text-2xl">$75.00</CardTitle>
-            </div>
-            <CreditCard className="size-6 text-sky-600" />
-          </CardHeader>
-        </Card>
+                <motion.div
+                  whileHover={{ rotate: 6, scale: 1.1 }}
+                  className="rounded-xl bg-sky-100 p-3"
+                >
+                  <item.icon className="size-6 text-sky-700" />
+                </motion.div>
+              </CardHeader>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div>
-              <CardDescription>Active Subscription</CardDescription>
-              <CardTitle className="text-2xl">Premium</CardTitle>
-            </div>
-            <Crown className="size-6 text-sky-600" />
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* Booking History */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Booking History</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader className="[&_tr]:bg-muted/40">
-                <TableRow>
-                  <TableHead>Booking ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Pickup Date</TableHead>
-                  <TableHead>Drop-off Date</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead className="text-right">Luggage Count</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="w-[120px] text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-medium">{r.id}</TableCell>
-                    <TableCell>
-                      <StatusBadge s={r.status} />
-                    </TableCell>
-                    <TableCell>{r.pickup}</TableCell>
-                    <TableCell>{r.dropoff}</TableCell>
-                    <TableCell>{r.destination}</TableCell>
-                    <TableCell className="text-right">{r.count}</TableCell>
-                    <TableCell className="text-right">
-                      ${r.price.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="outline" className="h-10">
-                        View Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subscription & Payments */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* -------------------- BOOKING HISTORY -------------------- */}
+      <motion.div whileHover={{ y: -2 }}>
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Subscription Management
+              Uttarakhand Booking History
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader className="bg-muted/40">
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Pickup</TableHead>
+                    <TableHead>Drop</TableHead>
+                    <TableHead>Route</TableHead>
+                    <TableHead className="text-right">
+                      Bags
+                    </TableHead>
+                    <TableHead className="text-right">
+                      Price
+                    </TableHead>
+                    <TableHead className="text-right">
+                      Action
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((r) => (
+                    <TableRow
+                      key={r.id}
+                      className="hover:bg-sky-50 transition"
+                    >
+                      <TableCell className="font-medium">
+                        {r.id}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge s={r.status} />
+                      </TableCell>
+                      <TableCell>{r.pickup}</TableCell>
+                      <TableCell>{r.dropoff}</TableCell>
+                      <TableCell>{r.destination}</TableCell>
+                      <TableCell className="text-right">
+                        {r.count}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        ₹{r.price.toLocaleString("en-IN")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="outline">
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* -------------------- SUBSCRIPTION + PAYMENTS -------------------- */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent" />
+          <CardHeader>
+            <CardTitle className="text-base">
+              Himalayan Travel Plan 🏔️
             </CardTitle>
             <CardDescription>
-              Your current plan:{" "}
-              <span className="font-medium text-foreground">
-                Premium Plan
+              Active Plan:{" "}
+              <span className="font-semibold text-sky-700">
+                Himalayan Pro
               </span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="grid gap-2 text-sm text-muted-foreground">
-              <li>Unlimited Bookings</li>
-              <li>Priority Support</li>
-              <li>Insurance Coverage</li>
-              <li>Real-time Tracking</li>
-            </ul>
-            <div className="text-xs text-muted-foreground">
-              Expires on: 2025-07-15
-            </div>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <p>✔ Unlimited Uttarakhand Routes</p>
+            <p>✔ Hill-safe Luggage Handling</p>
+            <p>✔ Monsoon Insurance Cover</p>
+            <p>✔ Live Tracking in Remote Areas</p>
+            <p className="text-xs mt-2">Expires: 15 July 2025</p>
           </CardContent>
           <CardFooter>
             <Button className="w-full h-12 bg-sky-600 text-white">
-              Manage Subscription
+              Manage Plan
             </Button>
           </CardFooter>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Recent Payments</CardTitle>
+            <CardTitle className="text-base">
+              Recent Payments
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border divide-y">
-              <div className="flex justify-between p-3 text-sm">
+            {[
+              ["Trip Dehradun → Nainital", "09 Jul 2024", "₹1,800"],
+              ["Himalayan Pro Renewal", "15 Jul 2024", "₹1,250"],
+              ["Trip Haldwani → Almora", "19 Jun 2024", "₹950"],
+            ].map(([t, d, p]) => (
+              <div
+                key={t}
+                className="flex justify-between p-3 text-sm rounded-md hover:bg-muted/40 transition"
+              >
                 <div>
-                  <div className="font-medium">Booking ZL0101</div>
+                  <div className="font-medium">{t}</div>
                   <div className="text-xs text-muted-foreground">
-                    2024-07-09
+                    {d}
                   </div>
                 </div>
-                <div className="font-medium">$120.00</div>
+                <div className="font-medium">{p}</div>
               </div>
-              <div className="flex justify-between p-3 text-sm">
-                <div>
-                  <div className="font-medium">Subscription Renewal</div>
-                  <div className="text-xs text-muted-foreground">
-                    2024-07-15
-                  </div>
-                </div>
-                <div className="font-medium">$25.00</div>
-              </div>
-              <div className="flex justify-between p-3 text-sm">
-                <div>
-                  <div className="font-medium">Booking ZL0104</div>
-                  <div className="text-xs text-muted-foreground">
-                    2024-06-19
-                  </div>
-                </div>
-                <div className="font-medium">$150.00</div>
-              </div>
-            </div>
+            ))}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full h-12">
@@ -280,14 +318,16 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Feedback */}
+      {/* -------------------- FEEDBACK -------------------- */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Leave Us Feedback</CardTitle>
+          <CardTitle className="text-base">
+            Apna Feedback Dein ✍️
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea
-            placeholder="Tell us about your experience..."
+            placeholder="Apna experience batayein — hills, delivery & service..."
             className="min-h-28 resize-y"
           />
         </CardContent>
@@ -298,6 +338,6 @@ export default function DashboardPage() {
           </Button>
         </CardFooter>
       </Card>
-    </div>
+    </motion.div>
   )
 }

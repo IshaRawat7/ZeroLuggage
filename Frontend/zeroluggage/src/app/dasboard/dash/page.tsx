@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function AdminOverviewPage() {
   return (
-    <main className="container mx-auto max-w-6xl px-4 py-6">
+    <main className="container mx-auto max-w-8xl px-4 py-6">
       <h1 className="text-pretty text-2xl font-semibold tracking-tight text-foreground">Admin Overview</h1>
 
       <section className="mt-6">

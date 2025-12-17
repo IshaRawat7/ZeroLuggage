@@ -9,50 +9,79 @@ interface TrackingMapProps {
   deliveryLocation: { lat: number; lng: number }
 }
 
-export default function TrackingMap({ pickupLocation, deliveryLocation }: TrackingMapProps) {
+export default function TrackingMap({
+  pickupLocation,
+  deliveryLocation,
+}: TrackingMapProps) {
   const mapRef = useRef<L.Map | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
 
-    // Initialize map
-    const map = L.map(containerRef.current).setView(
-      [(pickupLocation.lat + deliveryLocation.lat) / 2, (pickupLocation.lng + deliveryLocation.lng) / 2],
+    /* ---------------- MAP INIT ---------------- */
+
+    const map = L.map(containerRef.current, {
+      zoomControl: false,
+      attributionControl: false,
+    }).setView(
+      [
+        (pickupLocation.lat + deliveryLocation.lat) / 2,
+        (pickupLocation.lng + deliveryLocation.lng) / 2,
+      ],
       5,
     )
 
-    // Add tile layer
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(map)
 
-    // Custom icons
+    /* ---------------- ICONS ---------------- */
+
     const pickupIcon = L.divIcon({
-      html: `<div class="w-8 h-8 bg-green-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10.5 1.5H9.5V0h1v1.5zM14 4l.707-.707.707.707-.707.707L14 4zm2 5.5h1.5v1h-1.5v-1zM14 14l.707.707.707-.707.707.707-.707.707L14 14zm-8 2l-.707.707-.707-.707.707-.707.707.707zM2 9.5H.5v1H2v-1zm2-5.5l-.707-.707-.707.707-.707-.707.707-.707.707.707z"/></svg></div>`,
+      html: `
+        <div class="pulse pulse-green">
+          <div class="icon-circle bg-green">
+            📦
+          </div>
+        </div>
+      `,
       className: "",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
     })
 
     const deliveryIcon = L.divIcon({
-      html: `<div class="w-8 h-8 bg-red-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10.5 1.5H9.5V0h1v1.5zM14 4l.707-.707.707.707-.707.707L14 4zm2 5.5h1.5v1h-1.5v-1zM14 14l.707.707.707-.707.707.707-.707.707L14 14zm-8 2l-.707.707-.707-.707.707-.707.707.707zM2 9.5H.5v1H2v-1zm2-5.5l-.707-.707-.707.707-.707-.707.707-.707.707.707z"/></svg></div>`,
+      html: `
+        <div class="pulse pulse-red">
+          <div class="icon-circle bg-red">
+            🎯
+          </div>
+        </div>
+      `,
       className: "",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
     })
 
-    // Add markers
-    L.marker([pickupLocation.lat, pickupLocation.lng], { icon: pickupIcon })
-      .addTo(map)
-      .bindPopup("Pickup Location: Mumbai Airport")
+    /* ---------------- MARKERS ---------------- */
 
-    L.marker([deliveryLocation.lat, deliveryLocation.lng], { icon: deliveryIcon })
+    const pickupMarker = L.marker(
+      [pickupLocation.lat, pickupLocation.lng],
+      { icon: pickupIcon },
+    )
       .addTo(map)
-      .bindPopup("Delivery Location: Delhi")
+      .bindPopup("<b>Pickup</b><br/>Mumbai Airport")
 
-    // Draw route line
+    const deliveryMarker = L.marker(
+      [deliveryLocation.lat, deliveryLocation.lng],
+      { icon: deliveryIcon },
+    )
+      .addTo(map)
+      .bindPopup("<b>Delivery</b><br/>Delhi")
+
+    /* ---------------- ROUTE LINE ---------------- */
+
     const routeLine = L.polyline(
       [
         [pickupLocation.lat, pickupLocation.lng],
@@ -60,14 +89,18 @@ export default function TrackingMap({ pickupLocation, deliveryLocation }: Tracki
       ],
       {
         color: "#2563eb",
-        weight: 3,
-        opacity: 0.7,
-        dashArray: "5, 5",
+        weight: 4,
+        opacity: 0.8,
+        dashArray: "10 10",
+        className: "animated-route",
       },
     ).addTo(map)
 
-    // Fit bounds
-    map.fitBounds(routeLine.getBounds(), { padding: [50, 50] })
+    map.fitBounds(routeLine.getBounds(), {
+      padding: [60, 60],
+      animate: true,
+      duration: 1.2,
+    })
 
     mapRef.current = map
 
@@ -76,5 +109,87 @@ export default function TrackingMap({ pickupLocation, deliveryLocation }: Tracki
     }
   }, [pickupLocation, deliveryLocation])
 
-  return <div ref={containerRef} className="w-full h-full" />
+  return (
+    <>
+      <div ref={containerRef} className="w-full h-full rounded-xl overflow-hidden" />
+
+      {/* ---------------- STYLES ---------------- */}
+      <style jsx global>{`
+        .icon-circle {
+          width: 36px;
+          height: 36px;
+          border-radius: 9999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 16px;
+          border: 2px solid white;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+          animation: drop 0.6s ease-out;
+        }
+
+        .bg-green {
+          background: #22c55e;
+        }
+
+        .bg-red {
+          background: #ef4444;
+        }
+
+        .pulse {
+          position: relative;
+        }
+
+        .pulse::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 9999px;
+          animation: pulse 2s infinite;
+          opacity: 0.6;
+        }
+
+        .pulse-green::after {
+          background: rgba(34, 197, 94, 0.35);
+        }
+
+        .pulse-red::after {
+          background: rgba(239, 68, 68, 0.35);
+        }
+
+        .animated-route {
+          animation: dash 2s linear infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            opacity: 0.6;
+          }
+          100% {
+            transform: scale(1.8);
+            opacity: 0;
+          }
+        }
+
+        @keyframes dash {
+          to {
+            stroke-dashoffset: -20;
+          }
+        }
+
+        @keyframes drop {
+          0% {
+            transform: translateY(-20px) scale(0.8);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
+    </>
+  )
 }

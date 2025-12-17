@@ -38,7 +38,7 @@ export function PaymentCheckout() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-background  to-muted flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-green-100 rounded-full p-3">
