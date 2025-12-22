@@ -1,6 +1,8 @@
 import path from "path";
 import dotenv from "dotenv";
 import fs from "fs";
+import cookieParser from "cookie-parser";
+
 
 dotenv.config({
   path: path.resolve(__dirname, "../.env"),
@@ -15,12 +17,19 @@ import bookingRoutes from "./Routes/booking.routes";
 
 import { errorHandler } from "./Middleware/errorMiddleware";
 import authRoutes from "./Routes/auth.routes";
+import feedbackRoutes from "./Routes/feedback.routes";
 
 
 
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000", // Next.js frontend
+  credentials: true,
+}));
+
+app.use(cookieParser());
+
 app.use(express.json());
 
 // Ensure uploads folder exists
@@ -30,18 +39,22 @@ if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
 
 app.get("/", (req, res) => res.send("Oluggage backend running 🚀"));
 
+
+
+
 // Routes
 app.use("/api/auth", authRoutes); 
 app.use("/api/users", userRoutes);
+app.use("/api/feedback", feedbackRoutes);
 app.use("/api/luggage", luggageRoutes);
 app.use("/api/bookings", bookingRoutes);
 
 
-// ❗ MUST BE LAST
+
 app.use(errorHandler);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

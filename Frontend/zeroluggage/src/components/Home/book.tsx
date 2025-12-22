@@ -18,7 +18,7 @@ export default function BookingHero() {
   return (
     <section
       id="book"
-      className="relative min-h-screen w-full overflow-hidden bg-white px-3 sm:px-4"
+      className="relative min-h-screen max-w-8xl overflow-hidden bg-white px-3 sm:px-4"
     >
       {/* Animated Background */}
       <motion.div

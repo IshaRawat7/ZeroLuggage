@@ -106,7 +106,7 @@ export default function LuggageBookingForm() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // include token
+          Authorization: `Bearer ${token}`,
         },
         body: data,
       });

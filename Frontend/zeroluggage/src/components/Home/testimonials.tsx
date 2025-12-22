@@ -70,7 +70,7 @@ export function Testimonials() {
     <section
       id="reviews"
       aria-labelledby="reviews-title"
-      className="mx-auto max-w-7xl px-6 py-16 rounded-xl"
+      className="mx-auto max-w-8xl px-6 py-16 rounded-xl"
     >
       <h2 id="reviews-title" className="mb-12 text-center text-3xl font-bold text-sky-800">
         What Our Customers Say
