@@ -28,7 +28,7 @@ if (!strongPassword.test(password)) {
   res.json(user);
 });
 
-export const loginUser = asyncHandler(async (req, res) => {
+export const loginUser = asyncHandler(async (req: { body: { email: any; password: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; success?: boolean; token?: string; user?: { id: number; name: string; email: string; }; }): void; new(): any; }; }; }) => {
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -84,7 +84,12 @@ export const sendOtp = asyncHandler(async (req: { body: { email: any; phone: any
 
 
 // Verify OTP
-export const verifyOtp = asyncHandler(async (req, res) => {
+export const verifyOtp = asyncHandler(async (req: { body: { email: any; otp: any; }; }, res: {
+    status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: {
+      success: boolean; token: string; // ✅ SEND TOKEN
+      user: { id: number; name: string; email: string; };
+    }) => void;
+  }) => {
   const { email, otp } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
