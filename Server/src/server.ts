@@ -25,10 +25,13 @@ import trackingRoutes from "./Routes/tracking.routes";
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
-app.use(cors({
-  origin: "http://localhost:3000", 
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  })
+);
+
 
 app.use(cookieParser());
 
