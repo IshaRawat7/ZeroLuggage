@@ -18,13 +18,15 @@ import bookingRoutes from "./Routes/booking.routes";
 import { errorHandler } from "./Middleware/errorMiddleware";
 import authRoutes from "./Routes/auth.routes";
 import feedbackRoutes from "./Routes/feedback.routes";
+import trackingRoutes from "./Routes/tracking.routes";
 
 
 
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
+
 const app = express();
 app.use(cors({
-  origin: "http://localhost:3000", // Next.js frontend
+  origin: "http://localhost:3000", 
   credentials: true,
 }));
 
@@ -35,6 +37,8 @@ app.use(express.json());
 // Ensure uploads folder exists
 const uploadsPath = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 
 
 app.get("/", (req, res) => res.send("Oluggage backend running 🚀"));
@@ -48,11 +52,12 @@ app.use("/api/users", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/luggage", luggageRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/tracking", trackingRoutes);
 
 
 
 app.use(errorHandler);
-app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

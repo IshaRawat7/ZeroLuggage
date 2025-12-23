@@ -6,18 +6,22 @@ import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail";
 import { User } from "@prisma/client";
 
-export const registerUser = asyncHandler(async (req: { body: { name: any; email: any; password: any; phone: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: any) => void; }) => {
+export const registerUser = asyncHandler(async (req: { body: { name: any; email: any; password: any; phone: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; success?: boolean; token?: string; user?: { id: number; name: string; email: string; }; }): void; new(): any; }; }; }) => {
   const { name, email, password, phone } = req.body;
-  const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,16}$/;
 
-if (!strongPassword.test(password)) {
-  return res.status(400).json({
-    message:
-      "Password must be 8-16 characters long and include uppercase, lowercase, number & special character",
-  });
-}
+  const strongPassword =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,16}$/;
+
+  if (!strongPassword.test(password)) {
+    return res.status(400).json({
+      message:
+        "Password must be 8-16 characters long and include uppercase, lowercase, number & special character",
+    });
+  }
+
   const existed = await prisma.user.findUnique({ where: { email } });
-  if (existed) return res.status(400).json({ message: "Email already exists" });
+  if (existed)
+    return res.status(400).json({ message: "Email already exists" });
 
   const hash = await bcrypt.hash(password, 10);
 
@@ -25,10 +29,27 @@ if (!strongPassword.test(password)) {
     data: { name, email, password: hash, phone },
   });
 
-  res.json(user);
+
+  const token = jwt.sign(
+    { id: user.id },
+    process.env.JWT_SECRET!,
+    { expiresIn: "7d" }
+  );
+
+ 
+  res.status(201).json({
+    success: true,
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+  });
 });
 
-export const loginUser = asyncHandler(async (req: { body: { email: any; password: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; success?: boolean; token?: string; user?: { id: number; name: string; email: string; }; }): void; new(): any; }; }; }) => {
+
+export const loginUser = asyncHandler(async (req: { body: { email: any; password: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; success?: boolean; user?: { id: number; name: string; email: string; }; }): void; new(): any; }; }; cookie: (arg0: string, arg1: string, arg2: { httpOnly: boolean; secure: boolean; sameSite: string; maxAge: number; }) => void; }) => {
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -43,9 +64,16 @@ export const loginUser = asyncHandler(async (req: { body: { email: any; password
     { expiresIn: "7d" }
   );
 
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
+  });
+
   res.status(200).json({
     success: true,
-    token, // ✅ SEND TOKEN
     user: {
       id: user.id,
       name: user.name,
@@ -53,6 +81,7 @@ export const loginUser = asyncHandler(async (req: { body: { email: any; password
     },
   });
 });
+
 
 export const sendOtp = asyncHandler(async (req: { body: { email: any; phone: any; name: any; password: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: { message: string; }) => void; }) => {
   const { email, phone, name, password } = req.body;
@@ -85,6 +114,7 @@ export const sendOtp = asyncHandler(async (req: { body: { email: any; phone: any
 
 // Verify OTP
 export const verifyOtp = asyncHandler(async (req: { body: { email: any; otp: any; }; }, res: {
+  cookie: any;
     status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: {
       success: boolean; token: string; // ✅ SEND TOKEN
       user: { id: number; name: string; email: string; };
@@ -111,10 +141,13 @@ export const verifyOtp = asyncHandler(async (req: { body: { email: any; otp: any
     process.env.JWT_SECRET!,
     { expiresIn: "7d" }
   );
+  res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production",
+    sameSite:"lax",
+     maxAge: 7 * 24 * 60 * 60 * 1000, })
 
   res.json({
     success: true,
-    token, // ✅ SEND TOKEN
+    token, 
     user: {
       id: user.id,
       name: user.name,

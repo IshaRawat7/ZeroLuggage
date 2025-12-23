@@ -25,7 +25,16 @@ exports.registerUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = await prismaClient_1.prisma.user.create({
         data: { name, email, password: hash, phone },
     });
-    res.json(user);
+    const token = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    res.status(201).json({
+        success: true,
+        token,
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        },
+    });
 });
 exports.loginUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { email, password } = req.body;
@@ -36,9 +45,14 @@ exports.loginUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     if (!match)
         return res.status(400).json({ message: "Incorrect password" });
     const token = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({
         success: true,
-        token, // ✅ SEND TOKEN
         user: {
             id: user.id,
             name: user.name,
@@ -82,9 +96,12 @@ exports.verifyOtp = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         data: { otp: null, otpExpiry: null },
     });
     const token = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, });
     res.json({
         success: true,
-        token, // ✅ SEND TOKEN
+        token,
         user: {
             id: user.id,
             name: user.name,

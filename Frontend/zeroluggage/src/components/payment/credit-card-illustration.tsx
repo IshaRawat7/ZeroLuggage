@@ -14,7 +14,7 @@ export function CreditCardIllustration() {
           <div className="flex justify-between items-start">
             <div className="text-white">
               <p className="text-xs opacity-75 mb-1">CARD HOLDER</p>
-              <p className="font-semibold text-sm">John Doe</p>
+              <p className="font-semibold text-sm">User</p>
             </div>
             <div className="w-12 h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-md flex items-center justify-center">
               <div className="w-8 h-6 bg-yellow-500 rounded-sm opacity-80"></div>

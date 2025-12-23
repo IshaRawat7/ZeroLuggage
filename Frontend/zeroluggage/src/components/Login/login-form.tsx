@@ -107,6 +107,7 @@ export function LoginForm() {
       const res = await fetch(`${API}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ name, email, password, phone }),
       })
       const data = await res.json()
@@ -125,12 +126,11 @@ export function LoginForm() {
       const res = await fetch(`${API}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, otp }),
       })
       const data = await res.json()
       if (!res.ok) return toast.error(data.message || "OTP verification failed")
-
-      localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
       toast.success("Signup successful 🎉")
       router.push("/dasboard")
@@ -227,7 +227,14 @@ export function LoginForm() {
                   
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                  <Button onClick={sendLoginOtp} className="w-full bg-sky-400 text-white h-12 hover:bg-sky-500 transition-all duration-300">Login with OTP</Button>
+                 <Button
+  onClick={sendLoginOtp}
+  disabled={isLoginOtpSent} 
+  className="w-full bg-sky-400 text-white h-12 hover:bg-sky-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  Login with OTP
+</Button>
+
                 </motion.div>
               </motion.div>
             ) : (
@@ -318,11 +325,13 @@ export function LoginForm() {
         {/* Send OTP */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
           <Button
-            onClick={sendSignupOtp}
-            className="w-full bg-sky-600 text-white h-12 hover:bg-sky-700 transition-all duration-300"
-          >
-            Send OTP
-          </Button>
+  onClick={sendSignupOtp}
+  disabled={isSignupOtpSent} 
+  className="w-full bg-sky-600 text-white h-12 hover:bg-sky-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  Send OTP
+</Button>
+
         </motion.div>
       </motion.div>
     ) : (

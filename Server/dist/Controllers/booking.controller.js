@@ -4,16 +4,21 @@ exports.cancelBooking = exports.getBookingById = exports.getMyBookings = exports
 const prismaClient_1 = require("../prisma/prismaClient");
 const asyncHandler_1 = require("../utils/asyncHandler");
 /**
- * CREATE BOOKING
- *
+ * Utility: safe number conversion
  */
 const toInt = (value, defaultValue = 0) => {
     const num = Number(value);
     return isNaN(num) ? defaultValue : num;
 };
+/**
+ * CREATE BOOKING
+ */
 exports.createBooking = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { pickupLocation, dropoffLocation, pickupDate, dropoffDate, duration, luggageItems, estimatedFare, } = req.body;
-    const luggageFile = req.file;
+    const { pickupLocation, pickupLat, pickupLng, dropoffLocation, dropoffLat, dropoffLng, pickupDate, dropoffDate, duration, luggageItems, estimatedFare, } = req.body;
+    const luggageFiles = req.files;
+    if (luggageFiles && luggageFiles.length > 5) {
+        return res.status(400).json({ message: "Maximum 5 luggage images allowed" });
+    }
     if (!req.user?.id)
         return res.status(401).json({ message: "Unauthorized" });
     // Convert numeric fields safely
@@ -23,15 +28,23 @@ exports.createBooking = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         data: {
             bookingCode: `ZL-${Date.now()}`,
             pickupLocation,
+            pickupLat: pickupLat ? Number(pickupLat) : 0,
+            pickupLng: pickupLng ? Number(pickupLng) : 0,
             dropoffLocation,
+            dropoffLat: dropoffLat ? Number(dropoffLat) : 0,
+            dropoffLng: dropoffLng ? Number(dropoffLng) : 0,
             pickupDate: new Date(pickupDate),
             dropoffDate: new Date(dropoffDate),
             duration,
             luggageCount,
             estimatedFare: fare,
             userId: req.user.id,
-            luggageItems: luggageFile
-                ? { create: [{ imageUrl: `/uploads/${luggageFile.filename}` }] }
+            luggageItems: luggageFiles && luggageFiles.length
+                ? {
+                    create: luggageFiles.map((file) => ({
+                        imageUrl: `/uploads/${file.filename}`,
+                    })),
+                }
                 : undefined,
         },
         include: { luggageItems: true },

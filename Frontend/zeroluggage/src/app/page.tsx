@@ -5,7 +5,8 @@ import { SiteFooter } from "@/components/Home/site-footer"
 import BookingHero from "@/components/Home/book"
 import { SiteHeader } from "@/components/Home/site-header"
 import Destination from "@/components/Home/destination"
-import Chatbot from "@/components/Chatbot/chatbot"
+import ChatBot from "@/components/Chatbot/chatbot"
+
 import FeedbackPage from "@/components/Home/feedback"
 
 export default function Page() {
@@ -27,7 +28,7 @@ export default function Page() {
           <FeedbackPage/>
         </div>
       </main>
-      <Chatbot/>
+      <ChatBot/>
 
       <SiteFooter />
     </>
