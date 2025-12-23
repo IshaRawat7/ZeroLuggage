@@ -4,17 +4,24 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { AuthenticatedRequest } from "../Middleware/authMiddleware";
 
 /**
- * CREATE BOOKING
- * 
+ * Utility: safe number conversion
  */
 const toInt = (value: any, defaultValue = 0) => {
   const num = Number(value);
   return isNaN(num) ? defaultValue : num;
 };
+
+/**
+ * CREATE BOOKING
+ */
 export const createBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const {
     pickupLocation,
+    pickupLat,
+    pickupLng,
     dropoffLocation,
+    dropoffLat,
+    dropoffLng,
     pickupDate,
     dropoffDate,
     duration,
@@ -22,7 +29,11 @@ export const createBooking = asyncHandler(async (req: AuthenticatedRequest, res:
     estimatedFare,
   } = req.body;
 
-  const luggageFile = req.file;
+  const luggageFiles = req.files as Express.Multer.File[] | undefined;
+
+  if (luggageFiles && luggageFiles.length > 5) {
+    return res.status(400).json({ message: "Maximum 5 luggage images allowed" });
+  }
 
   if (!req.user?.id) return res.status(401).json({ message: "Unauthorized" });
 
@@ -34,22 +45,30 @@ export const createBooking = asyncHandler(async (req: AuthenticatedRequest, res:
     data: {
       bookingCode: `ZL-${Date.now()}`,
       pickupLocation,
+      pickupLat: pickupLat ? Number(pickupLat) : 0,
+      pickupLng: pickupLng ? Number(pickupLng) : 0,
       dropoffLocation,
+      dropoffLat: dropoffLat ? Number(dropoffLat) : 0,
+      dropoffLng: dropoffLng ? Number(dropoffLng) : 0,
       pickupDate: new Date(pickupDate),
       dropoffDate: new Date(dropoffDate),
       duration,
       luggageCount,
       estimatedFare: fare,
       userId: req.user.id,
-      luggageItems: luggageFile
-        ? { create: [{ imageUrl: `/uploads/${luggageFile.filename}` }] }
-        : undefined,
+      luggageItems:
+        luggageFiles && luggageFiles.length
+          ? {
+              create: luggageFiles.map((file) => ({
+                imageUrl: `/uploads/${file.filename}`,
+              })),
+            }
+          : undefined,
     },
     include: { luggageItems: true },
   });
 
- res.status(201).json({ success: true, message: "Booking created successfully!", booking });
-
+  res.status(201).json({ success: true, message: "Booking created successfully!", booking });
 });
 
 /**

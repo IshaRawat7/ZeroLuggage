@@ -8,15 +8,24 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  email     String    @unique
+  email     String     @unique
   password  String
   phone     String
+  createdAt DateTime   @default(now())
+  otp       String?
+  otpExpiry DateTime?
+  bookings  Booking[]
+  feedbacks Feedback[]
+}
 
-  bookings  Booking[]   // ✅ relation
-
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  message   String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Booking {
@@ -24,12 +33,16 @@ model Booking {
   bookingCode     String        @unique
 
   pickupLocation  String
+  pickupLat       Float
+  pickupLng       Float
+
   dropoffLocation String
+  dropoffLat      Float
+  dropoffLng      Float
 
   pickupDate      DateTime
   dropoffDate     DateTime
-
-  duration        String        // "2 hrs", "4 hrs", "All day"
+  duration        String
   luggageCount    Int
   estimatedFare   Float
 
@@ -40,18 +53,17 @@ model Booking {
 
   luggageItems    Luggage[]
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
+
 
 model Luggage {
   id        Int      @id @default(autoincrement())
   imageUrl  String?
   bookingId Int
-
-  booking   Booking @relation(fields: [bookingId], references: [id])
-
   createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
 }
 
 enum BookingStatus {

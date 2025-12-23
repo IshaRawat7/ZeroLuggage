@@ -88,7 +88,7 @@ export  default function PricingPlans() {
               <div className="mb-6">
                 <h2 className="text-2xl font-bold mb-2">{plan.name}</h2>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">${plan.price}</span>
+                  <span className="text-4xl font-bold">₹{plan.price}</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </div>

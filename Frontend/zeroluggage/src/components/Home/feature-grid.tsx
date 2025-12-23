@@ -82,7 +82,7 @@ export function HowItWorks() {
     <section
       id="how"
       aria-labelledby="how-title"
-      className="mx-auto max-w-7xl px-4 py-12 sm:py-16"
+      className="mx-auto max-w-8xl px-4 py-12 sm:py-16"
     >
       <h2
         id="how-title"

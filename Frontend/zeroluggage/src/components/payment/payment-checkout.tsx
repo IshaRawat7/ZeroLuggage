@@ -76,13 +76,13 @@ export function PaymentCheckout() {
               <div className="space-y-4 mb-6">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Pickup Location</p>
-                  <p className="font-semibold">JFK Airport, Terminal 4</p>
+                  <p className="font-semibold">Mussoorie</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Date</p>
-                    <p className="font-semibold">October 25, 2024</p>
+                    <p className="font-semibold">October 25, 2025</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Time</p>
@@ -96,19 +96,19 @@ export function PaymentCheckout() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Distance Charge</span>
-                    <span>$25.00</span>
+                    <span>₹25.00</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Luggage Fee</span>
-                    <span>$5.00</span>
+                    <span>₹5.00</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Delivery Speed (Express)</span>
-                    <span>$10.00</span>
+                    <span>₹10.00</span>
                   </div>
                   <div className="border-t pt-2 mt-2 flex justify-between font-bold">
                     <span>Total Amount</span>
-                    <span className="text-lg">$40.00</span>
+                    <span className="text-lg">₹40.00</span>
                   </div>
                 </div>
               </div>

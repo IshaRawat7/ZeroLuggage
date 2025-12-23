@@ -110,7 +110,7 @@ export function SiteHeader() {
             asChild
             className="bg-black text-white px-4 md:px-6 hover:bg-gray-800"
           >
-            <Link href="./dasboard">Book Now</Link>
+            <Link href="./dasboard/booking/newbooking">Book Now</Link>
           </Button>
 
           {/* Avatar */}

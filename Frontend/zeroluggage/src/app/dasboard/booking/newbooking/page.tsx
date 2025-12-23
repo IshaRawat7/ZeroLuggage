@@ -10,6 +10,7 @@ import {
   Package,
   Upload,
   RefreshCw,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,98 +26,95 @@ export default function LuggageBookingForm() {
     dropoffTime: "14:00",
     luggageItems: "2",
     duration: "4 hrs",
-    luggagePhoto: null as File | null,
+    luggagePhotos: [] as File[],
   });
 
   const [dragActive, setDragActive] = useState(false);
   const estimatedFare = 20.0;
   const today = new Date().toISOString().split("T")[0];
 
+  /* ---------------- HANDLERS ---------------- */
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDurationSelect = (duration: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      duration,
-    }));
+    setFormData((prev) => ({ ...prev, duration }));
   };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
-    else if (e.type === "dragleave") setDragActive(false);
+    else setDragActive(false);
+  };
+
+  const addFiles = (files: FileList) => {
+    const newFiles = Array.from(files).slice(0, 5 - formData.luggagePhotos.length);
+    setFormData((prev) => ({
+      ...prev,
+      luggagePhotos: [...prev.luggagePhotos, ...newFiles],
+    }));
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFormData((prev) => ({
-        ...prev,
-        luggagePhoto: e.dataTransfer.files[0],
-      }));
-    }
+    if (e.dataTransfer.files) addFiles(e.dataTransfer.files);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({ ...prev, luggagePhoto: e.target.files![0] }));
-    }
+    if (e.target.files) addFiles(e.target.files);
   };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      luggagePhotos: prev.luggagePhotos.filter((_, i) => i !== index),
+    }));
+  };
+
+  /* ---------------- SUBMIT ---------------- */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      // Get JWT token from localStorage
       const token = localStorage.getItem("token");
       if (!token) {
         toast.error("You must be logged in!");
         return;
       }
 
-      // Prepare form data to send
       const data = new FormData();
       data.append("pickupLocation", formData.pickupLocation);
       data.append("dropoffLocation", formData.dropoffLocation);
-      data.append(
-        "pickupDate",
-        `${formData.pickupDate}T${formData.pickupTime}`
-      );
-      data.append(
-        "dropoffDate",
-        `${formData.dropoffDate}T${formData.dropoffTime}`
-      );
+      data.append("pickupDate", `${formData.pickupDate}T${formData.pickupTime}`);
+      data.append("dropoffDate", `${formData.dropoffDate}T${formData.dropoffTime}`);
       data.append("duration", formData.duration);
-      data.append("luggageItems", formData.luggageItems); // send luggage count
+      data.append("luggageItems", formData.luggageItems);
       data.append("estimatedFare", estimatedFare.toString());
-      if (formData.luggagePhoto) {
-        data.append("luggagePhoto", formData.luggagePhoto);
-      }
 
-      // Send request to backend
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // include token
-        },
-        body: data,
+      formData.luggagePhotos.forEach((file) => {
+        data.append("luggagePhotos", file);
       });
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: data,
+        }
+      );
 
       const result = await res.json();
 
       if (res.ok && result.success) {
         toast.success(result.message || "Booking created successfully!");
-
-        // Reset the entire form to initial values
         setFormData({
           pickupLocation: "",
           dropoffLocation: "",
@@ -126,14 +124,14 @@ export default function LuggageBookingForm() {
           dropoffTime: "",
           luggageItems: "",
           duration: "",
-          luggagePhoto: null,
+          luggagePhotos: [],
         });
       } else {
-        toast.error(result.message || "Booking failed. Please try again.");
+        toast.error(result.message || "Booking failed.");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong. Please try again!");
+      toast.error("Something went wrong!");
     }
   };
 
@@ -150,58 +148,71 @@ export default function LuggageBookingForm() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Location */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-muted-foreground mb-4">
-            Location
-          </h2>
-          <div className="mb-6">
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                name="pickupLocation"
-                value={formData.pickupLocation}
-                onChange={handleChange}
-                className="pl-10 h-12"
-                placeholder="Pantnagar, Uttarakhand, India"
-              />
-            </div>
+         <Card className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Location</h2>
+
+          <div className="relative mb-6">
+            <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+            <Input
+              name="pickupLocation"
+              value={formData.pickupLocation}
+              onChange={handleChange}
+              className="pl-10 h-12"
+            />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-muted-foreground mb-2">
-              Upload luggage photo (for size detection)
+          {/* IMAGE UPLOAD */}
+          <div>
+            <label className="block text-sm mb-2">
+              Upload luggage photos (max 5)
             </label>
+
             <div
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                dragActive
-                  ? "border-sky-500 bg-sky-50"
-                  : "border-muted-foreground"
+              className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                dragActive ? "border-sky-500 bg-sky-50" : ""
               }`}
             >
               <input
                 type="file"
+                multiple
                 accept="image/*"
                 onChange={handleFileInput}
-                className="hidden h-12"
+                className="hidden"
                 id="luggage-photo"
               />
               <label htmlFor="luggage-photo" className="cursor-pointer">
-                <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  {formData.luggagePhoto
-                    ? formData.luggagePhoto.name
-                    : "Drag & drop or click to upload"}
-                </p>
+                <Upload className="mx-auto mb-2" />
+                <p>Drag & drop or click to upload</p>
               </label>
             </div>
+
+            {/* PREVIEWS */}
+            {formData.luggagePhotos.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
+                {formData.luggagePhotos.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="preview"
+                      className="h-24 w-full object-cover rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                    >
+                      <X size={14} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
-
         <Card className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -244,7 +255,6 @@ export default function LuggageBookingForm() {
             </div>
           </div>
         </Card>
-
         <Card className="p-6">
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-start gap-3">
@@ -309,7 +319,7 @@ export default function LuggageBookingForm() {
           <div className="flex items-center justify-between pt-4 border-t border-border">
             <span className="text-foreground font-medium">Estimated Fare:</span>
             <span className="text-2xl font-bold text-sky-600">
-              ${estimatedFare.toFixed(2)}
+              ₹{estimatedFare.toFixed(2)}
             </span>
           </div>
         </Card>
@@ -324,4 +334,4 @@ export default function LuggageBookingForm() {
       </form>
     </div>
   );
-}
+} 

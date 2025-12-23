@@ -26,7 +26,7 @@ const columns = [
   {
     title: "Support",
     links: [
-      { label: "Contact", href: "#support" },
+      { label: "Contact", href: "./Contact" },
       { label: "Safety & Security", href: "#" },
       { label: "Status", href: "#" },
     ],

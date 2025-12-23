@@ -9,7 +9,7 @@ import Img0 from "@/public/img0.jpg"
 
 const Destination = () => {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-6">
+    <div className="mx-auto max-w-8xl px-6 py-6">
       <header>
         <h2 className="text-6xl font-bold text-sky-900 mb-16 text-center ">
           Popular Among

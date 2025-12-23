@@ -7,22 +7,25 @@ exports.auth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth = (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({ message: "No token provided" });
+        let token = req.cookies.token; // ✅ check cookie first
+        // 🔑 If no cookie, check Authorization header
+        if (!token && req.headers.authorization) {
+            const authHeader = req.headers.authorization;
+            if (authHeader.startsWith("Bearer ")) {
+                token = authHeader.split(" ")[1];
+            }
         }
-        const token = authHeader.split(" ")[1];
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            console.error("JWT secret not set");
-            return res.status(500).json({ message: "Server configuration error" });
+        if (!token) {
+            return res.status(401).json({ message: "Not authenticated" });
         }
-        const decoded = jsonwebtoken_1.default.verify(token, secret);
-        req.user = decoded; // attach decoded token payload
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ message: "JWT secret missing" });
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        req.user = { id: decoded.id };
         next();
     }
     catch (err) {
-        console.error("JWT verification failed:", err);
         return res.status(401).json({ message: "Invalid or expired token" });
     }
 };

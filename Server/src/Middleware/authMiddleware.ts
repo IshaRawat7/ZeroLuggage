@@ -1,32 +1,39 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
-// Extend Express Request type to include `user`
 export interface AuthenticatedRequest extends Request {
-  user?: { id: number; [key: string]: any } | JwtPayload;
+  user?: { id: number };
 }
 
-export const auth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const auth = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const authHeader = req.headers.authorization;
+    let token = req.cookies.token; // ✅ check cookie first
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
+    // 🔑 If no cookie, check Authorization header
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+      }
     }
 
-    const token = authHeader.split(" ")[1];
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      console.error("JWT secret not set");
-      return res.status(500).json({ message: "Server configuration error" });
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
-    const decoded = jwt.verify(token, secret);
-    req.user = decoded as { id: number }; // attach decoded token payload
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "JWT secret missing" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: number };
+    req.user = { id: decoded.id };
+
     next();
   } catch (err) {
-    console.error("JWT verification failed:", err);
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
