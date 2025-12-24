@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { toast } from "react-toastify"
+
 
 import {
   Card,
@@ -23,11 +25,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
-import { Package, Truck, CreditCard, Crown, Send } from "lucide-react"
+import { Package, Truck, CreditCard, Crown, Send, Loader2 } from "lucide-react"
 
 export default function DashboardPage() {
   const [userName, setUserName] = useState("")
   const [feedback, setFeedback] = useState("")
+  const [submittingFeedback, setSubmittingFeedback] = useState(false)
+
 
   useEffect(() => {
     const user = localStorage.getItem("user")
@@ -67,23 +71,41 @@ export default function DashboardPage() {
   }
 
   /* -------------------- FEEDBACK SUBMIT -------------------- */
-  const handleSubmitFeedback = async () => {
-    if (!feedback) return alert("Please enter feedback")
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}")
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback/submit`, {
+const handleSubmitFeedback = async () => {
+  if (!feedback.trim()) {
+    toast.warn("Please enter your feedback ✍️")
+    return
+  }
+
+  try {
+    setSubmittingFeedback(true)
+
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/feedback/submit`,
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, message: feedback }),
-      })
-      const data = await res.json()
-      setFeedback("") // Clear textarea after submit
-      alert("Feedback submitted successfully!")
-    } catch (err) {
-      console.error(err)
-      alert("Failed to submit feedback")
-    }
+        body: JSON.stringify({
+          userId: user.id,
+          message: feedback,
+        }),
+      }
+    )
+
+    if (!res.ok) throw new Error("Failed to submit feedback")
+
+    setFeedback("")
+    toast.success("Feedback submitted successfully 🎉")
+  } catch (error) {
+    console.error(error)
+    toast.error("Failed to submit feedback ❌")
+  } finally {
+    setSubmittingFeedback(false)
   }
+}
+
 
   return (
     <motion.div
@@ -210,8 +232,22 @@ export default function DashboardPage() {
           />
         </CardContent>
         <CardFooter>
-          <Button className="w-full h-12 bg-sky-600 text-white" onClick={handleSubmitFeedback}>
-            <Send className="mr-2 size-4" /> Submit Feedback
+          <Button
+            className="w-full h-12 bg-sky-600 text-white"
+            onClick={handleSubmitFeedback}
+            disabled={submittingFeedback}
+          >
+            {submittingFeedback ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 size-4" />
+                Submit Feedback
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
