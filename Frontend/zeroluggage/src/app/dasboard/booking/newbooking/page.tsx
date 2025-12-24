@@ -28,10 +28,25 @@ export default function LuggageBookingForm() {
     duration: "4 hrs",
     luggagePhotos: [] as File[],
   });
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
 
   const [dragActive, setDragActive] = useState(false);
   const estimatedFare = 20.0;
   const today = new Date().toISOString().split("T")[0];
+
+  const isFormValid =
+  formData.pickupLocation.trim() !== "" &&
+  formData.dropoffLocation.trim() !== "" &&
+  formData.pickupDate !== "" &&
+  formData.pickupTime !== "" &&
+  formData.dropoffDate !== "" &&
+  formData.dropoffTime !== "" &&
+  formData.luggageItems !== "" &&
+  Number(formData.luggageItems) > 0 &&
+  formData.duration !== "" &&
+  formData.luggagePhotos.length > 0
+
 
   /* ---------------- HANDLERS ---------------- */
 
@@ -80,60 +95,74 @@ export default function LuggageBookingForm() {
   /* ---------------- SUBMIT ---------------- */
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault()
+  if (!isFormValid) {
+  toast.error("Please fill all fields and upload at least one luggage photo.")
+  return
+}
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("You must be logged in!");
-        return;
-      }
 
-      const data = new FormData();
-      data.append("pickupLocation", formData.pickupLocation);
-      data.append("dropoffLocation", formData.dropoffLocation);
-      data.append("pickupDate", `${formData.pickupDate}T${formData.pickupTime}`);
-      data.append("dropoffDate", `${formData.dropoffDate}T${formData.dropoffTime}`);
-      data.append("duration", formData.duration);
-      data.append("luggageItems", formData.luggageItems);
-      data.append("estimatedFare", estimatedFare.toString());
+  if (isSubmitting) return
 
-      formData.luggagePhotos.forEach((file) => {
-        data.append("luggagePhotos", file);
-      });
+  try {
+    setIsSubmitting(true)
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: data,
-        }
-      );
-
-      const result = await res.json();
-
-      if (res.ok && result.success) {
-        toast.success(result.message || "Booking created successfully!");
-        setFormData({
-          pickupLocation: "",
-          dropoffLocation: "",
-          pickupDate: "",
-          pickupTime: "",
-          dropoffDate: "",
-          dropoffTime: "",
-          luggageItems: "",
-          duration: "",
-          luggagePhotos: [],
-        });
-      } else {
-        toast.error(result.message || "Booking failed.");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong!");
+    const token = localStorage.getItem("token")
+    if (!token) {
+      toast.error("You must be logged in!")
+      return
     }
-  };
+
+    const data = new FormData()
+    data.append("pickupLocation", formData.pickupLocation)
+    data.append("dropoffLocation", formData.dropoffLocation)
+    data.append("pickupDate", `${formData.pickupDate}T${formData.pickupTime}`)
+    data.append("dropoffDate", `${formData.dropoffDate}T${formData.dropoffTime}`)
+    data.append("duration", formData.duration)
+    data.append("luggageItems", formData.luggageItems)
+    data.append("estimatedFare", estimatedFare.toString())
+
+    formData.luggagePhotos.forEach((file) => {
+      data.append("luggagePhotos", file)
+    })
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: data,
+      }
+    )
+
+    const result = await res.json()
+
+    if (res.ok && result.success) {
+      toast.success(result.message || "Booking created successfully!")
+      setFormData({
+        pickupLocation: "",
+        dropoffLocation: "",
+        pickupDate: "",
+        pickupTime: "",
+        dropoffDate: "",
+        dropoffTime: "",
+        luggageItems: "",
+        duration: "",
+        luggagePhotos: [],
+      })
+    } else {
+      toast.error(result.message || "Booking failed.")
+    }
+  } catch (err) {
+    console.error(err)
+    toast.error("Something went wrong!")
+  } finally {
+    setIsSubmitting(false)
+  }
+}
+
 
   return (
     <div className=" mx-auto">
@@ -326,11 +355,13 @@ export default function LuggageBookingForm() {
 
         {/* Submit Button */}
         <Button
-          type="submit"
-          className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg"
-        >
-          Confirm Booking
-        </Button>
+  type="submit"
+  disabled={isSubmitting}
+  className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {isSubmitting ? "Booking..." : "Confirm Booking"}
+</Button>
+
       </form>
     </div>
   );

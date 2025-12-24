@@ -4,6 +4,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, easeOut } from "framer-motion"
+import Image from "next/image"
+import Img3 from "@/public/lugg.png"
 import { Github, Twitter, Linkedin, ArrowUp } from "lucide-react"
 
 const columns = [
@@ -11,6 +13,7 @@ const columns = [
     title: "Company",
     links: [
       { label: "About Us", href: "./AboutUs/aboutUs" },
+      { label: "Developers", href: "./AboutUs/Developer" },
       { label: "Careers", href: "./AboutUs/careers" },
       { label: "Press", href: "./AboutUs/press" },
     ],
@@ -82,11 +85,25 @@ export function SiteFooter() {
         >
           {/* Brand Section */}
           <motion.div variants={itemVariants}>
+           
             <motion.div className="mb-4 flex items-center gap-3" whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white text-sky-900 font-bold text-lg">
-                Z
-              </span>
+               <Link href='/' className="flex items-center gap-4">
+              <Image
+                    src={Img3}
+                    alt="ZeroLuggage logo"
+                    width={40}
+                    height={40}
+                    priority
+                    className="
+                    rounded-md
+                      object-contain
+                      transition-all duration-300
+                      group-hover:scale-110
+                      group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]
+                    "
+                  />
               <span className="text-2xl font-bold tracking-tight text-white">ZeroLuggage</span>
+              </Link>
             </motion.div>
             <motion.p className="text-base leading-relaxed text-white/90" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.6 }}>
               Travel hands-free. Pick up, store, or deliver your luggage anytime, anywhere.

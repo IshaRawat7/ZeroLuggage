@@ -154,6 +154,7 @@ export function AppSidebar({ className }: { className?: string }) {
           {open ? (
             <>
                 <span className="relative flex h-9 w-9 md:h-10 md:w-10 items-center justify-center">
+    <Link href="/">
     <Image
       src={Img3}
       alt="ZeroLuggage logo"
@@ -168,9 +169,10 @@ export function AppSidebar({ className }: { className?: string }) {
         group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]
       "
     />
+    </Link>
   </span>
               <span className="text-xl font-bold text-sky-700">
-                ZeroLuggage
+              <Link href="/">  ZeroLuggage</Link>   
               </span>
             </>
           ) : (

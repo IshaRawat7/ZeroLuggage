@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "react-toastify"
 import { motion, AnimatePresence } from "framer-motion"
-import { Mail, Lock, User, Phone} from "lucide-react"
-import  Img1 from "@/public/lugg.png"
+import { Mail, Lock, User, Phone } from "lucide-react"
+import Img1 from "@/public/lugg.png"
 
 export function LoginForm() {
   const [value, setValue] = useState("login")
@@ -20,68 +20,64 @@ export function LoginForm() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [otp, setOtp] = useState("")
+
+  // Flow states
   const [isLoginOtpSent, setIsLoginOtpSent] = useState(false)
   const [isSignupOtpSent, setIsSignupOtpSent] = useState(false)
+
+  // Loading states (IMPORTANT)
+  const [sendingLoginOtp, setSendingLoginOtp] = useState(false)
+  const [verifyingLoginOtp, setVerifyingLoginOtp] = useState(false)
+  const [sendingSignupOtp, setSendingSignupOtp] = useState(false)
+  const [verifyingSignupOtp, setVerifyingSignupOtp] = useState(false)
 
   const router = useRouter()
   const API = `${process.env.NEXT_PUBLIC_API_URL}/api`
 
   // Password validation regex
-  const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,16}$/
+  const strongPassword =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,16}$/
 
-  // LOGIN HANDLERS
-  const handleLogin = async () => {
-    if (!email || !password) return toast.error("Enter email and password")
-    if (!strongPassword.test(password)) {
-      return toast.error(
-        "Password must be 8-16 characters, include uppercase, lowercase, number & special character"
-      )
-    }
-    try {
-      const res = await fetch(`${API}/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-      const data = await res.json()
-      if (!res.ok) return toast.error(data.message || "Login failed")
-
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
-      toast.success("Login successful 🎉")
-      router.push("/dasboard")
-    } catch (err) {
-      console.error(err)
-      toast.error("Login failed")
-    }
-  }
+  /* ---------------- LOGIN OTP ---------------- */
 
   const sendLoginOtp = async () => {
+    if (sendingLoginOtp) return
     if (!email) return toast.error("Enter email first")
+
     try {
+      setSendingLoginOtp(true)
+
       const res = await fetch(`${API}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       })
+
       const data = await res.json()
       if (!res.ok) return toast.error(data.message || "Failed to send OTP")
+
       setIsLoginOtpSent(true)
       toast.success("OTP sent to your email 🎉")
     } catch (err) {
-      console.error(err)
       toast.error("Failed to send OTP")
+    } finally {
+      setSendingLoginOtp(false)
     }
   }
 
   const verifyLoginOtp = async () => {
+    if (verifyingLoginOtp) return
     if (!otp) return toast.error("Enter OTP")
+
     try {
+      setVerifyingLoginOtp(true)
+
       const res = await fetch(`${API}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
       })
+
       const data = await res.json()
       if (!res.ok) return toast.error(data.message || "OTP verification failed")
 
@@ -90,53 +86,70 @@ export function LoginForm() {
       toast.success("Login successful 🎉")
       router.push("/dasboard")
     } catch (err) {
-      console.error(err)
       toast.error("OTP verification failed")
+    } finally {
+      setVerifyingLoginOtp(false)
     }
   }
 
-  // SIGNUP HANDLERS
+  /* ---------------- SIGNUP OTP ---------------- */
+
   const sendSignupOtp = async () => {
-    if (!name || !email || !password || !phone) return toast.error("Fill all fields")
+    if (sendingSignupOtp) return
+    if (!name || !email || !password || !phone)
+      return toast.error("Fill all fields")
+
     if (!strongPassword.test(password)) {
       return toast.error(
         "Password must be 8-16 characters, include uppercase, lowercase, number & special character"
       )
     }
+
     try {
+      setSendingSignupOtp(true)
+
       const res = await fetch(`${API}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ name, email, password, phone }),
       })
+
       const data = await res.json()
       if (!res.ok) return toast.error(data.message || "Failed to send OTP")
+
       setIsSignupOtpSent(true)
       toast.success("OTP sent to your email 🎉")
     } catch (err) {
-      console.error(err)
       toast.error("Failed to send OTP")
+    } finally {
+      setSendingSignupOtp(false)
     }
   }
 
   const verifySignupOtp = async () => {
+    if (verifyingSignupOtp) return
     if (!otp) return toast.error("Enter OTP")
+
     try {
+      setVerifyingSignupOtp(true)
+
       const res = await fetch(`${API}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ email, otp }),
       })
+
       const data = await res.json()
       if (!res.ok) return toast.error(data.message || "OTP verification failed")
-      localStorage.setItem("user", JSON.stringify(data.user))
+
       toast.success("Signup successful 🎉")
       router.push("/dasboard")
     } catch (err) {
-      console.error(err)
       toast.error("OTP verification failed")
+    } finally {
+      setVerifyingSignupOtp(false)
     }
   }
 
@@ -227,13 +240,14 @@ export function LoginForm() {
                   
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                 <Button
+<Button
   onClick={sendLoginOtp}
-  disabled={isLoginOtpSent} 
-  className="w-full bg-sky-400 text-white h-12 hover:bg-sky-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+  disabled={sendingLoginOtp}
+  className="w-full bg-sky-400 h-12 disabled:opacity-50"
 >
-  Login with OTP
+  {sendingLoginOtp ? "Sending OTP..." : "Login with OTP"}
 </Button>
+
 
                 </motion.div>
               </motion.div>
@@ -241,7 +255,14 @@ export function LoginForm() {
               <motion.div key="login-otp" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }} className="space-y-5">
                 <Label>Enter OTP</Label>
                 <Input type="text" placeholder="OTP" value={otp} onChange={(e) => setOtp(e.target.value)} className="h-12 text-center text-2xl tracking-widest focus:ring-2 focus:ring-sky-400" />
-                <Button onClick={verifyLoginOtp} className="w-full bg-sky-600 text-white h-12 hover:bg-sky-700 transition-all duration-300">Verify OTP</Button>
+                <Button
+  onClick={verifyLoginOtp}
+  disabled={verifyingLoginOtp}
+  className="w-full bg-sky-600 h-12 disabled:opacity-50"
+>
+  {verifyingLoginOtp ? "Verifying..." : "Verify OTP"}
+</Button>
+
               </motion.div>
             )}
           </AnimatePresence>
@@ -326,11 +347,16 @@ export function LoginForm() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
           <Button
   onClick={sendSignupOtp}
-  disabled={isSignupOtpSent} 
+  disabled={isSignupOtpSent || sendingSignupOtp}
   className="w-full bg-sky-600 text-white h-12 hover:bg-sky-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
 >
-  Send OTP
+  {sendingSignupOtp
+    ? "Sending OTP..."
+    : isSignupOtpSent
+    ? "OTP Sent"
+    : "Send OTP"}
 </Button>
+
 
         </motion.div>
       </motion.div>
@@ -352,11 +378,13 @@ export function LoginForm() {
           className="h-12 text-center text-2xl tracking-widest focus:ring-2 focus:ring-sky-400"
         />
         <Button
-          onClick={verifySignupOtp}
-          className="w-full bg-sky-600 text-white h-12 hover:bg-sky-700 transition-all duration-300"
-        >
-          Verify OTP
-        </Button>
+  onClick={verifySignupOtp}
+  disabled={verifyingSignupOtp}
+  className="w-full bg-sky-600 text-white h-12 hover:bg-sky-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {verifyingSignupOtp ? "Verifying..." : "Verify OTP"}
+</Button>
+
       </motion.div>
     )}
   </AnimatePresence>
