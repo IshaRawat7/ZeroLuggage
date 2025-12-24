@@ -25,25 +25,13 @@ import trackingRoutes from "./Routes/tracking.routes";
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
-const allowedOrigins = process.env.CORS_ORIGIN
-  ?.split(",")              // split by comma
-  .map(origin => origin.trim()) || [];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true); // allow this origin
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // allow cookies
+    origin: true,
+    credentials: true,
   })
 );
+
 
 app.use(cookieParser());
 
