@@ -22,10 +22,10 @@ export default function TrackingPage() {
   const [loading, setLoading] = useState(true)
 
   const steps = [
-    { id: 1, label: "Picked from Kedarnath" },
+    { id: 1, label: "Picked from Pantnagar" },
     { id: 2, label: "In Transit" },
     { id: 3, label: "Out for Delivery" },
-    { id: 4, label: "Delivered at Rishikesh" },
+    { id: 4, label: "Delivered at Pantnagar" },
   ]
 
  useEffect(() => {
