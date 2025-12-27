@@ -25,12 +25,32 @@ import trackingRoutes from "./Routes/tracking.routes";
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
+
+const allowedOrigins = [
+  "https://zero-luggage.vercel.app",
+  "https://zero-luggage-git-main-ishas-projects-24809793.vercel.app",
+  "http://localhost:3000"
+]
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
-);
+)
+
+// IMPORTANT
+app.options("*", cors())
+
 
 
 app.use(cookieParser());
@@ -66,4 +86,3 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
