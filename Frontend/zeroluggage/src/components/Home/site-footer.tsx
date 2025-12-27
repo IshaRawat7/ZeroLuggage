@@ -37,7 +37,7 @@ const columns = [
   {
     title: "Legal",
     links: [
-      { label: "Privacy Policy", href: "#" },
+      { label: "Privacy Policy", href: "./dasboard/policies" },
       { label: "Terms of Service", href: "#" },
       { label: "Cookies", href: "#" },
     ],
