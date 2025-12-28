@@ -15,10 +15,15 @@ export default function Chatbot() {
         onClick={() => setOpen(!open)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 
-                   hover:from-violet-500 hover:via-purple-500 hover:to-indigo-500
-                   text-white rounded-full w-16 h-16 flex items-center justify-center 
-                   shadow-2xl shadow-purple-500/50 transition-all duration-300"
+        className="
+          fixed z-50
+          bottom-[calc(1.5rem+env(safe-area-inset-bottom))]
+          right-[calc(1.5rem+env(safe-area-inset-right))]
+          bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 
+          hover:from-violet-500 hover:via-purple-500 hover:to-indigo-500
+          text-white rounded-full w-16 h-16 flex items-center justify-center 
+          shadow-2xl shadow-purple-500/50 transition-all duration-300
+        "
       >
         <AnimatePresence mode="wait">
           {open ? (
@@ -68,11 +73,23 @@ export default function Chatbot() {
             transition={{ duration: 0.35, ease: "easeOut" }}
             className="
               fixed z-50 flex flex-col overflow-hidden
-              bottom-0 right-0
+
+              /* Mobile fullscreen */
+              inset-0
               w-full h-[100dvh]
-              sm:bottom-28 sm:right-6 sm:w-[420px] sm:h-[620px]
-              backdrop-blur-2xl bg-gradient-to-br from-white/95 via-white/90 to-purple-50/90
-              border border-white/60 rounded-none sm:rounded-3xl
+              rounded-none
+
+              /* Desktop floating */
+              sm:inset-auto
+              sm:bottom-[calc(7rem+env(safe-area-inset-bottom))]
+              sm:right-[calc(1.5rem+env(safe-area-inset-right))]
+              sm:w-[420px]
+              sm:h-[620px]
+              sm:rounded-3xl
+
+              backdrop-blur-2xl
+              bg-gradient-to-br from-white/95 via-white/90 to-purple-50/90
+              border border-white/60
               shadow-2xl shadow-purple-500/20
             "
           >
@@ -83,7 +100,9 @@ export default function Chatbot() {
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-base">ZeroLuggage Assistant</h3>
+                  <h3 className="font-semibold text-base">
+                    ZeroLuggage Assistant
+                  </h3>
                   <p className="text-[11px] text-white/80">
                     Smart help • Instant answers
                   </p>
