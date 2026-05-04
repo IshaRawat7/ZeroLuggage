@@ -31,7 +31,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://zero-luggage-4izy.vercel.app/"
+  "https://zero-luggage.vercel.app/"
 ];
 
 app.use(
