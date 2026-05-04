@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -119,4 +120,7 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+.n8n-chat-wrapper {
+  z-index: 9999 !important;
 }

@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 import { asyncHandler } from "../utils/asyncHandler";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail";
-import { User } from "@prisma/client";
 
-export const registerUser = asyncHandler(async (req: { body: { name: any; email: any; password: any; phone: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; success?: boolean; token?: string; user?: { id: number; name: string; email: string; }; }): void; new(): any; }; }; }) => {
+// ================= REGISTER =================
+export const registerUser = asyncHandler(async (req: any, res: any) => {
   const { name, email, password, phone } = req.body;
 
   const strongPassword =
@@ -29,14 +29,12 @@ export const registerUser = asyncHandler(async (req: { body: { name: any; email:
     data: { name, email, password: hash, phone },
   });
 
-
   const token = jwt.sign(
     { id: user.id },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" }
   );
 
- 
   res.status(201).json({
     success: true,
     token,
@@ -48,8 +46,8 @@ export const registerUser = asyncHandler(async (req: { body: { name: any; email:
   });
 });
 
-
-export const loginUser = asyncHandler(async (req: { body: { email: any; password: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; success?: boolean; user?: { id: number; name: string; email: string; }; }): void; new(): any; }; }; cookie: (arg0: string, arg1: string, arg2: { httpOnly: boolean; secure: boolean; sameSite: string; maxAge: number; }) => void; }) => {
+// ================= LOGIN =================
+export const loginUser = asyncHandler(async (req: any, res: any) => {
   const { email, password } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -64,12 +62,11 @@ export const loginUser = asyncHandler(async (req: { body: { email: any; password
     { expiresIn: "7d" }
   );
 
-
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", 
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, 
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.status(200).json({
@@ -82,76 +79,121 @@ export const loginUser = asyncHandler(async (req: { body: { email: any; password
   });
 });
 
+// ================= SEND OTP =================
+export const sendOtp = asyncHandler(async (req: any, res: any) => {
+  const { email } = req.body;
 
-export const sendOtp = asyncHandler(async (req: { body: { email: any; phone: any; name: any; password: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: { message: string; }) => void; }) => {
-  const { email, phone, name, password } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
 
-  let user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email } });
 
-  // If user doesn't exist, create a temp user (for signup OTP)
-  if (!user) {
-    if (!name || !password) return res.status(400).json({ message: "Provide name & password for signup" });
-
-    const hash = await bcrypt.hash(password, 10);
-
-    user = await prisma.user.create({
-      data: { name, email, password: hash, phone },
+  // 🚫 Prevent OTP spam (if already sent and not expired)
+  if (user?.otpExpiry && user.otpExpiry > new Date()) {
+    return res.status(400).json({
+      message: "OTP already sent. Please wait before requesting again.",
     });
   }
 
   const otp = crypto.randomInt(100000, 999999).toString();
-  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
+  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min
 
-  await prisma.user.update({
-    where: { email },
-    data: { otp, otpExpiry },
-  });
+  if (user) {
+    // existing user → update OTP
+    await prisma.user.update({
+      where: { email },
+      data: { otp, otpExpiry },
+    });
+  } else {
+    // new user → create minimal record
+    await prisma.user.create({
+      data: {
+        email,
+        otp,
+        otpExpiry,
+        name: "Temp",
+        password: "temp", // will update later
+        phone: "", // will update later
+      },
+    });
+  }
 
-  await sendEmail(email, "Your OTP Code", `Your OTP is: ${otp}`);
+  // 📩 Send email via Resend
+  await sendEmail(
+    email,
+    "OTP Verification",
+    `<h2>Your OTP is: ${otp}</h2><p>Valid for 5 minutes</p>`
+  );
+
+  console.log("OTP:", otp); // fallback
+
   res.json({ message: "OTP sent to your email" });
 });
 
-
-// Verify OTP
-export const verifyOtp = asyncHandler(async (req: { body: { email: any; otp: any; }; }, res: {
-  cookie: any;
-    status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: {
-      success: boolean; token: string; // ✅ SEND TOKEN
-      user: { id: number; name: string; email: string; };
-    }) => void;
-  }) => {
-  const { email, otp } = req.body;
+// ================= VERIFY OTP =================
+export const verifyOtp = asyncHandler(async (req: any, res: any) => {
+  const { email, otp, name, password, phone } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  if (!user.otp || !user.otpExpiry || user.otpExpiry < new Date())
+  if (!user.otp || !user.otpExpiry || user.otpExpiry < new Date()) {
     return res.status(400).json({ message: "OTP expired or invalid" });
+  }
 
-  if (user.otp !== otp)
+  if (user.otp !== otp) {
     return res.status(400).json({ message: "Incorrect OTP" });
+  }
 
+  // 🔐 If it's a new user → complete registration
+  let updatedUser = user;
+
+  if (user.password === "temp") {
+    if (!name || !password) {
+      return res.status(400).json({
+        message: "Provide name & password to complete signup",
+      });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    updatedUser = await prisma.user.update({
+      where: { email },
+      data: {
+        name,
+        password: hash,
+        phone,
+      },
+    });
+  }
+
+  // clear OTP
   await prisma.user.update({
     where: { email },
     data: { otp: null, otpExpiry: null },
   });
 
   const token = jwt.sign(
-    { id: user.id },
+    { id: updatedUser.id },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" }
   );
-  res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production",
-    sameSite:"lax",
-     maxAge: 7 * 24 * 60 * 60 * 1000, })
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 
   res.json({
     success: true,
-    token, 
+    token,
     user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
     },
   });
 });
