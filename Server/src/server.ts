@@ -12,8 +12,10 @@ import authRoutes from "./Routes/auth.routes";
 import feedbackRoutes from "./Routes/feedback.routes";
 import trackingRoutes from "./Routes/tracking.routes";
 
-
 import { errorHandler } from "./Middleware/errorMiddleware";
+
+
+
 import paymentRoutes from "./Routes/payment.routes";
 
 
@@ -31,7 +33,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://zero-luggage.vercel.app/"
+    "https://zero-luggage.vercel.app/"
 ];
 
 app.use(
