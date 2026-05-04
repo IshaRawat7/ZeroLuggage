@@ -11,9 +11,9 @@ export const auth = (
   next: NextFunction
 ) => {
   try {
-    let token = req.cookies.token; // ✅ check cookie first
+    let token = req.cookies.token; //  check cookie first
 
-    // 🔑 If no cookie, check Authorization header
+    //  If no cookie, check Authorization header
     if (!token && req.headers.authorization) {
       const authHeader = req.headers.authorization;
       if (authHeader.startsWith("Bearer ")) {

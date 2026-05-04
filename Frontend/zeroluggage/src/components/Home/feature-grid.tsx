@@ -55,7 +55,7 @@ function Grid({ items }: { items: Feature[] }) {
               "
             >
               <CardHeader className="flex flex-col items-center gap-2 py-5 sm:py-6">
-                <span className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-tr from-sky-400 to-sky-600 text-white shadow-md">
+                <span className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-linear-to-tr from-sky-400 to-sky-600 text-white shadow-md">
                   <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                 </span>
 
@@ -90,7 +90,7 @@ export function HowItWorks() {
                    text-2xl sm:text-3xl relative inline-block"
       >
         How It Works
-        <span className="absolute left-1/2 -bottom-2 h-1 w-20 sm:w-24 -translate-x-1/2 bg-gradient-to-r from-sky-400 to-sky-600 rounded-full" />
+        <span className="absolute left-1/2 -bottom-2 h-1 w-20 sm:w-24 -translate-x-1/2 bg-linear-to-r from-sky-400 to-sky-600 rounded-full" />
       </h2>
 
       <Grid items={howItWorks} />
@@ -111,7 +111,7 @@ export function WhyChoose() {
                    text-2xl sm:text-3xl relative inline-block"
       >
         Why Choose ZeroLuggage?
-        <span className="absolute left-1/2 -bottom-2 h-1 w-20 sm:w-24 -translate-x-1/2 bg-gradient-to-r from-sky-400 to-sky-600 rounded-full" />
+        <span className="absolute left-1/2 -bottom-2 h-1 w-20 sm:w-24 -translate-x-1/2 bg-linear-to-r from-sky-400 to-sky-600 rounded-full" />
       </h2>
 
       <Grid items={whyChoose} />

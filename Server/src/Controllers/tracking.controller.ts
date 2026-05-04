@@ -2,20 +2,11 @@ import { BookingStatus } from "@prisma/client";
 import { prisma } from "../prisma/prismaClient";
 import { asyncHandler } from "../utils/asyncHandler";
 
-// Get booking details by tracking code
-export const getBookingTracking = asyncHandler(async (req: { params: { trackingCode: any; }; }, res: {
-    status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): any; new(): any; }; }; json: (arg0: {
-      trackingId: string; currentLocation: string; estimatedDelivery: Date; status: BookingStatus; progress: number;
-      // ✅ Use actual lat/lng fields from DB
-      pickupLocation: { lat: number; lng: number; }; deliveryLocation: { lat: number; lng: number; };
-      // ✅ Also return names for UI
-      pickupLocationName: string; dropoffLocationName: string;
-    }) => void;
-  }) => {
-  const { trackingCode } = req.params;
+export const getBookingTracking = asyncHandler(async (req: any, res: any) => {
+  const { bookingCode } = req.params;
 
   const booking = await prisma.booking.findUnique({
-    where: { bookingCode: trackingCode },
+    where: { bookingCode },
     include: {
       user: true,
       luggageItems: true,
@@ -32,11 +23,11 @@ export const getBookingTracking = asyncHandler(async (req: { params: { trackingC
       booking.status === "IN_TRANSIT"
         ? `On Route via ${booking.pickupLocation}`
         : booking.dropoffLocation,
+
     estimatedDelivery: booking.dropoffDate,
     status: booking.status,
     progress: getProgressFromStatus(booking.status),
 
-    // ✅ Use actual lat/lng fields from DB
     pickupLocation: {
       lat: booking.pickupLat,
       lng: booking.pickupLng,
@@ -46,20 +37,25 @@ export const getBookingTracking = asyncHandler(async (req: { params: { trackingC
       lng: booking.dropoffLng,
     },
 
-    // ✅ Also return names for UI
     pickupLocationName: booking.pickupLocation,
     dropoffLocationName: booking.dropoffLocation,
   });
 });
 
-// Helper function to convert status to step progress
+// Helper
 function getProgressFromStatus(status: BookingStatus) {
   switch (status) {
-    case "PENDING": return 0;
-    case "CONFIRMED": return 1;
-    case "IN_TRANSIT": return 2;
-    case "DELIVERED": return 4;
-    case "CANCELLED": return 0;
-    default: return 0;
+    case "PENDING":
+      return 0;
+    case "CONFIRMED":
+      return 1;
+    case "IN_TRANSIT":
+      return 2;
+    case "DELIVERED":
+      return 4;
+    case "CANCELLED":
+      return 0;
+    default:
+      return 0;
   }
 }

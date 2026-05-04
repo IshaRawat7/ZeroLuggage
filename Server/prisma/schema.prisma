@@ -16,8 +16,10 @@ model User {
   createdAt DateTime   @default(now())
   otp       String?
   otpExpiry DateTime?
-  bookings  Booking[]
+
+  bookings  Booking[]  
   feedbacks Feedback[]
+  payment   Payment[]
 }
 
 model Feedback {
@@ -25,6 +27,7 @@ model Feedback {
   userId    Int
   message   String
   createdAt DateTime @default(now())
+
   user      User     @relation(fields: [userId], references: [id])
 }
 
@@ -55,14 +58,15 @@ model Booking {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  payments        Payment[]   
 }
-
-
 model Luggage {
   id        Int      @id @default(autoincrement())
   imageUrl  String?
   bookingId Int
   createdAt DateTime @default(now())
+
   booking   Booking  @relation(fields: [bookingId], references: [id])
 }
 
@@ -72,4 +76,32 @@ enum BookingStatus {
   IN_TRANSIT
   DELIVERED
   CANCELLED
+}
+
+model Payment {
+  id                Int      @id @default(autoincrement())
+
+  amount            Float
+  currency          String   @default("INR")
+
+  razorpayOrderId   String   @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  status            PaymentStatus @default(PENDING)
+
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id])
+
+  bookingId         Int?
+  booking           Booking? @relation(fields: [bookingId], references: [id])
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

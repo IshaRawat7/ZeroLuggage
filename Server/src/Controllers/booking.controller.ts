@@ -74,8 +74,9 @@ export const createBooking = asyncHandler(async (req: AuthenticatedRequest, res:
 /**
  * GET LOGGED-IN USER BOOKINGS
  */
-export const getMyBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user?.id) return res.status(401).json({ message: "Unauthorized" });
+export const getMyBookings = asyncHandler(async (req: any, res: Response) => {
+  if (!req.user?.id)
+    return res.status(401).json({ message: "Unauthorized" });
 
   const bookings = await prisma.booking.findMany({
     where: { userId: req.user.id },
@@ -83,7 +84,8 @@ export const getMyBookings = asyncHandler(async (req: AuthenticatedRequest, res:
     orderBy: { createdAt: "desc" },
   });
 
-  res.json({ success: true, bookings });
+  // ✅ ALWAYS return array directly (important)
+  res.json(bookings);
 });
 
 /**

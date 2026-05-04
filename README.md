@@ -56,3 +56,14 @@ cd ZeroLuggage/Frontend/zeroluggage
 npm i
 npm run dev
 ```
+
+
+```
+Key Techno used
+1. Resend for secure email 
+2. Razorpay for payement purpose
+3. Prism as DB
+4. Next js
+5. JWT
+
+```
