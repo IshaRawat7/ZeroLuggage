@@ -11,14 +11,9 @@ import bookingRoutes from "./Routes/booking.routes";
 import authRoutes from "./Routes/auth.routes";
 import feedbackRoutes from "./Routes/feedback.routes";
 import trackingRoutes from "./Routes/tracking.routes";
-
-import { errorHandler } from "./Middleware/errorMiddleware";
-
-
-import { errorHandler } from "./Middleware/errorMiddleware";
 import paymentRoutes from "./Routes/payment.routes";
 
-
+import { errorHandler } from "./Middleware/errorMiddleware";
 
 // Load env
 dotenv.config({
@@ -29,31 +24,33 @@ console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
 
-/* -------------------- CORS SETUP -------------------- */
+/* -------------------- CORS (FIXED) -------------------- */
 
 const allowedOrigins = [
+  "http://localhost:3000",
   "https://zero-luggage-4izy.vercel.app",
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps / postman)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(null, true);
       }
+
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-
-// Express + CORS handles OPTIONS automatically
+// 🔥 Handle preflight requests
+app.options("*", cors());
 
 /* -------------------- MIDDLEWARES -------------------- */
 
@@ -72,7 +69,7 @@ app.use("/uploads", express.static(uploadsPath));
 
 /* -------------------- HEALTH CHECK -------------------- */
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("ZeroLuggage backend running 🚀");
 });
 
