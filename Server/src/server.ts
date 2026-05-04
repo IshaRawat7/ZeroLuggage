@@ -12,8 +12,6 @@ import authRoutes from "./Routes/auth.routes";
 import feedbackRoutes from "./Routes/feedback.routes";
 import trackingRoutes from "./Routes/tracking.routes";
 
-import { errorHandler } from "./Middleware/errorMiddleware";
-
 
 import { errorHandler } from "./Middleware/errorMiddleware";
 import paymentRoutes from "./Routes/payment.routes";
