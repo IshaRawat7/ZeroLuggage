@@ -7,8 +7,8 @@ exports.auth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth = (req, res, next) => {
     try {
-        let token = req.cookies.token; // ✅ check cookie first
-        // 🔑 If no cookie, check Authorization header
+        let token = req.cookies.token; //  check cookie first
+        //  If no cookie, check Authorization header
         if (!token && req.headers.authorization) {
             const authHeader = req.headers.authorization;
             if (authHeader.startsWith("Bearer ")) {

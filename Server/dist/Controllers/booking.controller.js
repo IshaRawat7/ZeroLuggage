@@ -62,7 +62,8 @@ exports.getMyBookings = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         include: { luggageItems: true },
         orderBy: { createdAt: "desc" },
     });
-    res.json({ success: true, bookings });
+    // ✅ ALWAYS return array directly (important)
+    res.json(bookings);
 });
 /**
  * GET SINGLE BOOKING DETAILS

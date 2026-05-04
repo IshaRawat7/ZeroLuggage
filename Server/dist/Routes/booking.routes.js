@@ -16,14 +16,16 @@ const storage = multer_1.default.diskStorage({
 const upload = (0, multer_1.default)({
     storage,
     limits: {
-        files: 5, // hard limit
-        fileSize: 5 * 1024 * 1024, // optional: 5MB per image
+        files: 5,
+        fileSize: 5 * 1024 * 1024,
     },
 });
-router.post("/", authMiddleware_1.auth, upload.array("luggagePhotos", 5), // <-- max 5 images
-booking_controller_1.createBooking);
+// CREATE
+router.post("/", authMiddleware_1.auth, upload.array("luggagePhotos", 5), booking_controller_1.createBooking);
+//  ONLY ONE route for bookings list
 router.get("/me", authMiddleware_1.auth, booking_controller_1.getMyBookings);
-router.get("/", authMiddleware_1.auth, booking_controller_1.getMyBookings);
+// SINGLE BOOKING
 router.get("/:id", authMiddleware_1.auth, booking_controller_1.getBookingById);
+// CANCEL
 router.patch("/cancel/:id", authMiddleware_1.auth, booking_controller_1.cancelBooking);
 exports.default = router;

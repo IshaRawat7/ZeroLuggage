@@ -15,7 +15,8 @@ export const sendEmail = async (
       html: `<p>${text}</p>`,
     });
 
-    console.log("✅ Email sent:", response);
+
+    console.log("✅ Email sent:", response); 
   } catch (err: any) {
     console.error("❌ Resend error:", err.message || err);
   }
