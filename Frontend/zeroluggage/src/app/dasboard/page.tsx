@@ -124,7 +124,7 @@ const handleSubmitFeedback = async () => {
         {stats.map((item) => (
           <motion.div key={item.title} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} whileHover={{ scale: 1.04 }} transition={{ type: "spring", stiffness: 200 }}>
             <Card className="group relative overflow-hidden border border-sky-100 bg-white/70 backdrop-blur-md hover:shadow-xl transition-all">
-              <div className="absolute inset-0 bg-gradient-to-br from-sky-400/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-linear-to-br from-sky-400/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               <CardHeader className="relative flex flex-row items-center justify-between pb-2">
                 <div>
                   <CardDescription className="text-xs uppercase tracking-wide">{item.title}</CardDescription>
@@ -182,7 +182,7 @@ const handleSubmitFeedback = async () => {
       {/* -------------------- SUBSCRIPTION + PAYMENTS -------------------- */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-br from-sky-500/10 to-transparent" />
           <CardHeader>
             <CardTitle className="text-base">Himalayan Travel Plan 🏔️</CardTitle>
             <CardDescription>

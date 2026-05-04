@@ -20,7 +20,7 @@ export default function login() {
 
           {/* Right: Animated Illustration */}
           <div className="rounded-xl border bg-muted/30 p-2">
-            <Suspense fallback={<div className="aspect-[4/3] w-full rounded-lg bg-muted" aria-hidden />}>
+            <Suspense fallback={<div className="aspect-4/3 w-full rounded-lg bg-muted" aria-hidden />}>
               <AnimatedLoginArt />
             </Suspense>
           </div>
