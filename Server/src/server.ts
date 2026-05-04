@@ -18,7 +18,7 @@ import { errorHandler } from "./Middleware/errorMiddleware";
 import { errorHandler } from "./Middleware/errorMiddleware";
 import paymentRoutes from "./Routes/payment.routes";
 
-=======
+
 
 // Load env
 dotenv.config({
@@ -53,7 +53,7 @@ app.use(
 );
 
 
-// ❌ DO NOT USE app.options("*", cors())
+
 // Express + CORS handles OPTIONS automatically
 
 /* -------------------- MIDDLEWARES -------------------- */
