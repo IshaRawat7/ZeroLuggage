@@ -33,6 +33,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
+    "https://zero-luggage.vercel.app/"
 ];
 
 app.use(

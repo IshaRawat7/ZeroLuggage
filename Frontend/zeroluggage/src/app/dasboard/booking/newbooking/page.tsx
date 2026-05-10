@@ -20,9 +20,9 @@ export default function LuggageBookingForm() {
   const [formData, setFormData] = useState({
     pickupLocation: "Pantnagar, Uttarakhand, India",
     dropoffLocation: "Pantnagar, Uttarakhand, India",
-    pickupDate: "2025-12-25",
+    pickupDate: "2026-05-19",
     pickupTime: "10:00",
-    dropoffDate: "2025-10-25",
+    dropoffDate: "2026-05-19",
     dropoffTime: "14:00",
     luggageItems: "2",
     duration: "4 hrs",

@@ -12,7 +12,12 @@ export const sendEmail = async (
       from: "ishurawat267@gmail.com", // works without domain
       to,
       subject,
-      html: `<p>${text}</p>`,
+      html: `
+  <div style="font-family:sans-serif;">
+    <h2>${subject}</h2>
+    <p>${text}</p>
+  </div>
+`
     });
 
 
