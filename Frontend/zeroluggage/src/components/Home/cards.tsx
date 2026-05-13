@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import Img from "@/public/travel.jpg"
 import type { StaticImageData } from "next/image"
+import Link from "next/link"
 
 interface DestinationCardProps {
    image?: StaticImageData | string
@@ -51,7 +52,7 @@ export function DestinationCard({
   priority
 />
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
 
         {/* Image Title */}
         <motion.h3
@@ -129,12 +130,14 @@ export function DestinationCard({
           transition={{ delay: 0.8, duration: 0.5 }}
           className="pt-2"
         >
+          <Link href="./haldwani">
           <Button
             onClick={onExplore}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
           >
             Explore Now
           </Button>
+          </Link>
         </motion.div>
       </div>
     </motion.div>

@@ -17,7 +17,7 @@ const TrackingMap = dynamic(
 
 export default function TrackingPage() {
   const router = useRouter()
-  const { bookingCode } = useParams<any>()  
+  const { trackingCode } = useParams<{ trackingCode: string }>()  
 
   const [trackingData, setTrackingData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -30,12 +30,12 @@ export default function TrackingPage() {
   ]
 
   useEffect(() => {
-    if (!bookingCode) return
+    if (!trackingCode) return
 
     const fetchTracking = async () => {
       try {
         const res = await fetch(
-          `${API_URL}/api/tracking/${bookingCode}`,
+          `${API_URL}/api/tracking/${trackingCode}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -56,7 +56,7 @@ export default function TrackingPage() {
     }
 
     fetchTracking()
-  }, [bookingCode])
+  }, [trackingCode])
 
   if (loading) return <p className="text-center mt-10">Loading...</p>
   if (!trackingData) return <p className="text-center mt-10">Booking not found</p>
