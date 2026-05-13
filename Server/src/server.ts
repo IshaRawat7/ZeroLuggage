@@ -1,3 +1,4 @@
+import "./services/reminderSection"
 import path from "path";
 import dotenv from "dotenv";
 import fs from "fs";
@@ -11,6 +12,7 @@ import bookingRoutes from "./Routes/booking.routes";
 import authRoutes from "./Routes/auth.routes";
 import feedbackRoutes from "./Routes/feedback.routes";
 import trackingRoutes from "./Routes/tracking.routes";
+
 
 import { errorHandler } from "./Middleware/errorMiddleware";
 
@@ -33,7 +35,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-    "https://zero-luggage.vercel.app/"
+    
 ];
 
 app.use(
