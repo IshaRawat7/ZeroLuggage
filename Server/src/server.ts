@@ -34,8 +34,10 @@ const app = express();
 /* -------------------- CORS SETUP -------------------- */
 
 const allowedOrigins = [
-  "http://localhost:3000",
+
     
+    "https://zero-luggage.vercel.app/"
+
 ];
 
 app.use(
