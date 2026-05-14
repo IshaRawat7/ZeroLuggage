@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Img3 from "@/public/lugg.png"
@@ -27,9 +28,11 @@ export function SiteHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("token"))
-  }, [])
+  const pathname = usePathname()
+
+useEffect(() => {
+  setIsLoggedIn(!!localStorage.getItem("token"))
+}, [pathname])
 
   const handleLogout = async () => {
     try {
