@@ -98,6 +98,8 @@ export const loginUser = asyncHandler(async (req: any, res: any) => {
 // ================= SEND OTP =================
 // SEND OTP CONTROLLER
 
+// SEND OTP CONTROLLER
+
 export const sendOtp = asyncHandler(async (req: any, res: any) => {
   const { email } = req.body;
 
@@ -128,6 +130,7 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
   if (user) {
     await prisma.user.update({
       where: { email },
+
       data: {
         otp,
         otpExpiry,
@@ -145,6 +148,12 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
       },
     });
   }
+
+  // Send response immediately
+  res.json({
+    success: true,
+    message: "OTP sent to your email",
+  });
 
   const html = `
     <div style="font-family:Arial;padding:20px">
@@ -167,28 +176,22 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
     </div>
   `;
 
-  // SEND EMAIL FIRST
-  const sent = await sendEmail(
-    email,
-    "ZeroLuggage - Your Login OTP",
-    html
-  );
+  // Send email in background
+  (async () => {
+    const sent = await sendEmail(
+      email,
+      "OTP Verification",
+      html
+    );
 
-  if (!sent) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to send OTP email",
-    });
-  }
+    console.log(
+      sent
+        ? "✅ OTP email sent"
+        : "❌ OTP email failed"
+    );
+  })();
 
-  console.log("✅ OTP email sent");
   console.log("OTP:", otp);
-
-  // THEN SEND RESPONSE
-  res.json({
-    success: true,
-    message: "OTP sent to your email",
-  });
 });
 // ================= VERIFY OTP =================
 export const verifyOtp = asyncHandler(async (req: any, res: any) => {
