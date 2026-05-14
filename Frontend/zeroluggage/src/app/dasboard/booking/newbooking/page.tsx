@@ -242,14 +242,6 @@ export default function LuggageBookingForm() {
 
     try {
       setIsSubmitting(true);
-
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast.error("You must be logged in!");
-        return;
-      }
-
       const data = new FormData();
 
       data.append("pickupLocation", formData.pickupLocation);
@@ -277,16 +269,14 @@ export default function LuggageBookingForm() {
         data.append("luggagePhotos", file);
       });
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: data,
-        }
-      );
+     const res = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
+  {
+    method: "POST",
+    credentials: "include",
+    body: data,
+  }
+);
 
       const result = await res.json();
 
@@ -344,7 +334,7 @@ export default function LuggageBookingForm() {
                 Pickup Location
               </label>
 
-              <MapPin className="absolute left-3 top-42px h-5 w-5 text-muted-foreground" />
+              <MapPin className="absolute left-3 top-10 h-5 w-5 text-muted-foreground" />
 
               <Input
                 name="pickupLocation"
@@ -387,7 +377,7 @@ export default function LuggageBookingForm() {
                 Drop-off Location
               </label>
 
-              <MapPin className="absolute left-3 top-42px h-5 w-5 text-muted-foreground" />
+              <MapPin className="absolute left-3 top-10 h-5 w-5 text-muted-foreground" />
 
               <Input
                 name="dropoffLocation"

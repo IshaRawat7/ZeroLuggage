@@ -88,7 +88,7 @@ model Reminder {
 
 enum ReminderType {
   PICKUP
-  DROPOFF
+  DROPOFFl
   STORAGE_EXPIRY
 }
 

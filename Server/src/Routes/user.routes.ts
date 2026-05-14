@@ -1,14 +1,16 @@
-import { Router, RequestHandler } from "express";
+import { Router } from "express";
+import type { Request, Response } from "express";
 import { loginUser, registerUser } from "../Controllers/user.controller";
 
 const router = Router();
 
-// Test GET route
-router.get("/", (req, res) => {
+// Test route
+router.get("/", (req: Request, res: Response) => {
   res.json({ message: "Users route is working!" });
 });
 
-router.post("/register", registerUser as RequestHandler);
-router.post("/login", loginUser as RequestHandler);
+// Auth routes
+router.post("/register", registerUser);
+router.post("/login", loginUser);
 
 export default router;
