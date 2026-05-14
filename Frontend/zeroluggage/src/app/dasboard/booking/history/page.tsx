@@ -58,7 +58,7 @@ export default function HistoryPage() {
               <p>Drop: {booking.dropoffLocation}</p>
 
               <Link
-                href={`/dasboard/booking/${booking.id}`}
+                href={`/dasboard/booking/${booking.bookingCode}`}
                 className="text-blue-600"
               >
                 Track Booking

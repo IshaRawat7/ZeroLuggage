@@ -27,7 +27,7 @@ ZeroLuggage is a modern web application that simplifies travel planning. Explore
 - **Backend (Optional):** Express.js, Prisma, PostgreSQL
 - **Authentication:** User
 - **Package Manager:** npm
-- **Deployment:** Vercel 
+
 
 ---
 
@@ -65,5 +65,7 @@ Key Techno used
 3. Prism as DB
 4. Next js
 5. JWT
+6. OSM Integarted (Open Street Map)
+7. Shadcn UI
 
 ```

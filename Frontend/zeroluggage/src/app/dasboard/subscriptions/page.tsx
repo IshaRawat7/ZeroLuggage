@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -14,7 +15,6 @@ interface Plan {
   price: number
   description: string
   features: PlanFeature[]
-  highlighted?: boolean
 }
 
 const plans: Plan[] = [
@@ -35,7 +35,6 @@ const plans: Plan[] = [
     name: "Premium Plan",
     price: 29,
     description: "Most popular choice",
-    highlighted: true,
     features: [
       { name: "3 Luggage Deliveries per month", included: true },
       { name: "Advanced Live Tracking", included: true },
@@ -60,73 +59,135 @@ const plans: Plan[] = [
   },
 ]
 
-export  default function PricingPlans() {
+export default function PricingPlans() {
+  // First card active by default
+  const [activeCard, setActiveCard] = useState(0)
+
   return (
-    <div className="w-full py-2 px-4 md:px-8">
-      <div className="max-w-8xl mx-auto">
+    <div className="w-full py-16 px-4 md:px-8 bg-gradient-to-b from-background to-slate-50 dark:to-slate-950">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">
-            Unlock Seamless Journeys with ZeroLuggage Plans
+        <div className="text-center mb-14">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-5 leading-tight">
+            Unlock Seamless Journeys <br />
+            with{" "}
+            <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
+              ZeroLuggage
+            </span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-            Choose the perfect plan that fits your travel needs and enjoy a hassle-free luggage experience. Upgrade
-            anytime!
+
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Choose a plan tailored for your travel style and experience
+            stress-free luggage transportation anywhere.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-6">
-          {plans.map((plan, index) => (
-            <Card
-              key={index}
-              className={`flex flex-col p-8 transition-all duration-300 ${
-                plan.highlighted ? "border-2 border-blue-500 shadow-lg scale-105 md:scale-100" : "border border-border"
-              }`}
-            >
-              {/* Plan Name and Price */}
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">{plan.name}</h2>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">₹{plan.price}</span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
-              </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {plans.map((plan, index) => {
+            const isActive = activeCard === index
 
-              {/* Features List */}
-              <div className="flex-1 mb-8">
-                <ul className="space-y-4">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
-                      {feature.included ? (
-                        <Check className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <X className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      )}
-                      <span
-                        className={`text-sm ${
-                          feature.included ? "text-foreground" : "text-muted-foreground line-through"
-                        }`}
-                      >
-                        {feature.name}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Subscribe Button */}
-              <Button
-                className={`w-full py-6 font-semibold text-base ${
-                  plan.highlighted
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-secondary hover:bg-secondary/80 text-foreground"
-                }`}
+            return (
+              <div
+                key={index}
+                onMouseEnter={() => setActiveCard(index)}
+                className={`relative transition-all duration-500`}
               >
-                Subscribe Now
-              </Button>
-            </Card>
-          ))}
+                {/* Glow Effect */}
+                {isActive && (
+                  <div className="absolute inset-0 rounded-3xl bg-blue-500/20 blur-2xl"></div>
+                )}
+
+                <Card
+                  className={`
+                    relative overflow-hidden rounded-3xl p-8 flex flex-col h-full
+                    transition-all duration-500 cursor-pointer
+                    border-2
+                    ${
+                      isActive
+                        ? "border-blue-500 shadow-2xl scale-105 bg-white dark:bg-slate-900"
+                        : "border-border/50 scale-95 opacity-80 hover:opacity-100"
+                    }
+                  `}
+                >
+                  {/* Recommended Badge */}
+                  {isActive && (
+                    <div className="absolute top-4 right-4">
+                      <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-md">
+                        Recommended
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Plan Header */}
+                  <div className="mb-8">
+                    <h2 className="text-3xl font-bold mb-2">{plan.name}</h2>
+
+                    <p className="text-muted-foreground mb-5">
+                      {plan.description}
+                    </p>
+
+                    <div className="flex items-end gap-1">
+                      <span className="text-5xl font-extrabold">
+                        ₹{plan.price}
+                      </span>
+
+                      <span className="text-muted-foreground mb-1">
+                        /month
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <div className="flex-1">
+                    <ul className="space-y-4">
+                      {plan.features.map((feature, featureIndex) => (
+                        <li
+                          key={featureIndex}
+                          className="flex items-start gap-3"
+                        >
+                          {feature.included ? (
+                            <div className="bg-blue-100 dark:bg-blue-900/30 p-1 rounded-full">
+                              <Check className="w-4 h-4 text-blue-600" />
+                            </div>
+                          ) : (
+                            <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
+                              <X className="w-4 h-4 text-muted-foreground" />
+                            </div>
+                          )}
+
+                          <span
+                            className={`text-sm leading-relaxed ${
+                              feature.included
+                                ? "text-foreground"
+                                : "text-muted-foreground line-through"
+                            }`}
+                          >
+                            {feature.name}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Button
+                    className={`
+                      mt-8 py-6 rounded-xl text-base font-semibold
+                      transition-all duration-300
+                      ${
+                        isActive
+                          ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+                          : "bg-secondary hover:bg-secondary/80"
+                      }
+                    `}
+                  >
+                    Subscribe Now
+                  </Button>
+                </Card>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
