@@ -39,119 +39,152 @@ export function LoginForm() {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,16}$/
 
   /* ---------------- LOGIN OTP ---------------- */
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const sendLoginOtp = async () => {
-    if (sendingLoginOtp) return
-    if (!email) return toast.error("Enter email first")
+ const sendLoginOtp = async () => {
+  if (sendingLoginOtp) return;
 
-    try {
-      setSendingLoginOtp(true)
+  if (!email) return toast.error("Enter email first");
 
-      const res = await fetch(`${API}/auth/send-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      })
+  if (!emailRegex.test(email))
+    return toast.error("Enter a valid email");
 
-      const data = await res.json()
-      if (!res.ok) return toast.error(data.message || "Failed to send OTP")
+  try {
+    setSendingLoginOtp(true);
 
-      setIsLoginOtpSent(true)
-      toast.success("OTP sent to your email 🎉")
-    } catch (err) {
-      toast.error("Failed to send OTP")
-    } finally {
-      setSendingLoginOtp(false)
-    }
+    const res = await fetch(`${API}/auth/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok)
+      return toast.error(data.message || "Failed to send OTP");
+
+    setIsLoginOtpSent(true);
+    toast.success("OTP sent to your email 🎉");
+
+  } catch (err) {
+    toast.error("Server error while sending OTP");
+  } finally {
+    setSendingLoginOtp(false);
   }
-
+};
   const verifyLoginOtp = async () => {
-    if (verifyingLoginOtp) return
-    if (!otp) return toast.error("Enter OTP")
+  if (verifyingLoginOtp) return;
 
-    try {
-      setVerifyingLoginOtp(true)
+  if (!otp || otp.length !== 6)
+    return toast.error("Enter valid 6-digit OTP");
 
-      const res = await fetch(`${API}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      })
+  try {
+    setVerifyingLoginOtp(true);
 
-      const data = await res.json()
-      if (!res.ok) return toast.error(data.message || "OTP verification failed")
+    const res = await fetch(`${API}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
 
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
-      toast.success("Login successful 🎉")
-      router.push("/dasboard")
-    } catch (err) {
-      toast.error("OTP verification failed")
-    } finally {
-      setVerifyingLoginOtp(false)
-    }
+    const data = await res.json();
+
+    if (!res.ok)
+      return toast.error(data.message || "OTP verification failed");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    toast.success("Login successful 🎉");
+
+    router.push("/dasboard");
+
+  } catch (err) {
+    toast.error("OTP verification failed");
+  } finally {
+    setVerifyingLoginOtp(false);
   }
-
+};
   /* ---------------- SIGNUP OTP ---------------- */
 
   const sendSignupOtp = async () => {
-    if (sendingSignupOtp) return
-    if (!name || !email || !password || !phone)
-      return toast.error("Fill all fields")
+  if (sendingSignupOtp) return;
 
-    if (!strongPassword.test(password)) {
-      return toast.error(
-        "Password must be 8-16 characters, include uppercase, lowercase, number & special character"
-      )
-    }
+  if (!name || !email || !password || !phone)
+    return toast.error("Fill all fields");
 
-    try {
-      setSendingSignupOtp(true)
+  if (!emailRegex.test(email))
+    return toast.error("Enter a valid email");
 
-      const res = await fetch(`${API}/auth/send-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ name, email, password, phone }),
-      })
+  if (!strongPassword.test(password))
+    return toast.error(
+      "Password must be 8-16 characters, include uppercase, lowercase, number & special character"
+    );
 
-      const data = await res.json()
-      if (!res.ok) return toast.error(data.message || "Failed to send OTP")
+  try {
+    setSendingSignupOtp(true);
 
-      setIsSignupOtpSent(true)
-      toast.success("OTP sent to your email 🎉")
-    } catch (err) {
-      toast.error("Failed to send OTP")
-    } finally {
-      setSendingSignupOtp(false)
-    }
+    const res = await fetch(`${API}/auth/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name, email, password, phone }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok)
+      return toast.error(data.message || "Failed to send OTP");
+
+    setIsSignupOtpSent(true);
+
+    toast.success("OTP sent to your email 🎉");
+
+  } catch (err) {
+    toast.error("Server error while sending OTP");
+  } finally {
+    setSendingSignupOtp(false);
   }
-
+};
   const verifySignupOtp = async () => {
-    if (verifyingSignupOtp) return
-    if (!otp) return toast.error("Enter OTP")
+  if (verifyingSignupOtp) return;
 
-    try {
-      setVerifyingSignupOtp(true)
+  if (!otp || otp.length !== 6)
+    return toast.error("Enter valid 6-digit OTP");
 
-      const res = await fetch(`${API}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, otp }),
-      })
+  try {
+    setVerifyingSignupOtp(true);
 
-      const data = await res.json()
-      if (!res.ok) return toast.error(data.message || "OTP verification failed")
+    const res = await fetch(`${API}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+  name,
+  email,
+  password,
+  phone,
+  otp,
+}),
+    });
 
-      toast.success("Signup successful 🎉")
-      router.push("/dasboard")
-    } catch (err) {
-      toast.error("OTP verification failed")
-    } finally {
-      setVerifyingSignupOtp(false)
-    }
+    const data = await res.json();
+
+    if (!res.ok)
+      return toast.error(data.message || "OTP verification failed");
+     localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    toast.success("Signup successful 🎉");
+
+    router.push("/dasboard");
+
+  } catch (err) {
+    toast.error("OTP verification failed");
+  } finally {
+    setVerifyingSignupOtp(false);
   }
+};
 
   return (
     <motion.div
