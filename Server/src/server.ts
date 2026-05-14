@@ -36,7 +36,7 @@ const app = express();
 const allowedOrigins = [
 
     
-    "https://zero-luggage.vercel.app/"
+    "https://zero-luggage.vercel.app"
 
 ];
 
