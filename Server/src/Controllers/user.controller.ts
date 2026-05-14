@@ -96,6 +96,8 @@ export const loginUser = asyncHandler(async (req: any, res: any) => {
 
 
 // ================= SEND OTP =================
+// SEND OTP CONTROLLER
+
 export const sendOtp = asyncHandler(async (req: any, res: any) => {
   const { email } = req.body;
 
@@ -145,25 +147,47 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
     });
   }
 
-  // 🚀 Send response immediately
+  // Send response immediately
   res.json({
     success: true,
     message: "OTP sent to your email",
   });
 
-  // 🚀 Send email in background
-  sendEmail(
-    email,
-    "OTP Verification",
-    `<h2>Your OTP is: ${otp}</h2>
-     <p>This OTP is valid for 5 minutes.</p>`
-  )
-    .then(() => {
-      console.log("✅ OTP email sent");
-    })
-    .catch((err) => {
-      console.log("❌ Email error:", err);
-    });
+  const html = `
+    <div style="font-family:Arial;padding:20px">
+      <h2>ZeroLuggage OTP Verification</h2>
+
+      <p>Your OTP code is:</p>
+
+      <div style="
+        font-size:32px;
+        font-weight:bold;
+        letter-spacing:5px;
+        margin:20px 0;
+      ">
+        ${otp}
+      </div>
+
+      <p>This OTP is valid for 5 minutes.</p>
+
+      <p>Do not share this OTP with anyone.</p>
+    </div>
+  `;
+
+  // Send email in background
+  (async () => {
+    const sent = await sendEmail(
+      email,
+      "OTP Verification",
+      html
+    );
+
+    console.log(
+      sent
+        ? "✅ OTP email sent"
+        : "❌ OTP email failed"
+    );
+  })();
 
   console.log("OTP:", otp);
 });
