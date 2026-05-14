@@ -100,33 +100,39 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ message: "Email is required" });
+    return res.status(400).json({
+      message: "Email is required",
+    });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-  // 🚫 Prevent OTP spam
+  // Prevent OTP spam
   if (user?.otpExpiry && user.otpExpiry > new Date()) {
     return res.status(400).json({
-      message: "OTP already sent. Please wait before requesting again.",
+      message:
+        "OTP already sent. Please wait before requesting again.",
     });
   }
 
   const otp = crypto.randomInt(100000, 999999).toString();
 
-  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  const otpExpiry = new Date(
+    Date.now() + 5 * 60 * 1000
+  );
 
   if (user) {
-    // existing user
     await prisma.user.update({
       where: { email },
+
       data: {
         otp,
         otpExpiry,
       },
     });
   } else {
-    // new signup user
     await prisma.user.create({
       data: {
         email,
@@ -139,21 +145,28 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
     });
   }
 
-  await sendEmail(
-    email,
-    "OTP Verification",
-    `<h2>Your OTP is: ${otp}</h2><p>This OTP is valid for 5 minutes.</p>`
-  );
-
-  console.log("OTP:", otp);
-
+  // 🚀 Send response immediately
   res.json({
     success: true,
     message: "OTP sent to your email",
   });
+
+  // 🚀 Send email in background
+  sendEmail(
+    email,
+    "OTP Verification",
+    `<h2>Your OTP is: ${otp}</h2>
+     <p>This OTP is valid for 5 minutes.</p>`
+  )
+    .then(() => {
+      console.log("✅ OTP email sent");
+    })
+    .catch((err) => {
+      console.log("❌ Email error:", err);
+    });
+
+  console.log("OTP:", otp);
 });
-
-
 // ================= VERIFY OTP =================
 export const verifyOtp = asyncHandler(async (req: any, res: any) => {
   const { email, otp, name, password, phone } = req.body;
