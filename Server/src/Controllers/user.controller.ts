@@ -96,47 +96,37 @@ export const loginUser = asyncHandler(async (req: any, res: any) => {
 
 
 // ================= SEND OTP =================
-// SEND OTP CONTROLLER
-
-// SEND OTP CONTROLLER
-
 export const sendOtp = asyncHandler(async (req: any, res: any) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({
-      message: "Email is required",
-    });
+    return res.status(400).json({ message: "Email is required" });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const user = await prisma.user.findUnique({ where: { email } });
 
-  // Prevent OTP spam
+  // 🚫 Prevent OTP spam
   if (user?.otpExpiry && user.otpExpiry > new Date()) {
     return res.status(400).json({
-      message:
-        "OTP already sent. Please wait before requesting again.",
+      message: "OTP already sent. Please wait before requesting again.",
     });
   }
 
   const otp = crypto.randomInt(100000, 999999).toString();
 
-  const otpExpiry = new Date(
-    Date.now() + 5 * 60 * 1000
-  );
+  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   if (user) {
+    // existing user
     await prisma.user.update({
       where: { email },
-
       data: {
         otp,
         otpExpiry,
       },
     });
   } else {
+    // new signup user
     await prisma.user.create({
       data: {
         email,
@@ -149,50 +139,21 @@ export const sendOtp = asyncHandler(async (req: any, res: any) => {
     });
   }
 
-  // Send response immediately
+  await sendEmail(
+    email,
+    "OTP Verification",
+    `<h2>Your OTP is: ${otp}</h2><p>This OTP is valid for 5 minutes.</p>`
+  );
+
+  console.log("OTP:", otp);
+
   res.json({
     success: true,
     message: "OTP sent to your email",
   });
-
-  const html = `
-    <div style="font-family:Arial;padding:20px">
-      <h2>ZeroLuggage OTP Verification</h2>
-
-      <p>Your OTP code is:</p>
-
-      <div style="
-        font-size:32px;
-        font-weight:bold;
-        letter-spacing:5px;
-        margin:20px 0;
-      ">
-        ${otp}
-      </div>
-
-      <p>This OTP is valid for 5 minutes.</p>
-
-      <p>Do not share this OTP with anyone.</p>
-    </div>
-  `;
-
-  // Send email in background
-  (async () => {
-    const sent = await sendEmail(
-      email,
-      "OTP Verification",
-      html
-    );
-
-    console.log(
-      sent
-        ? "✅ OTP email sent"
-        : "❌ OTP email failed"
-    );
-  })();
-
-  console.log("OTP:", otp);
 });
+
+
 // ================= VERIFY OTP =================
 export const verifyOtp = asyncHandler(async (req: any, res: any) => {
   const { email, otp, name, password, phone } = req.body;
