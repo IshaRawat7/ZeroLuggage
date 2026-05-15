@@ -1,40 +1,51 @@
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-
-  port: 465,
-  secure: true,
-
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
-});
+import axios from "axios"
 
 export const sendEmail = async (
   to: string,
   subject: string,
-  html: string
+  text: string
 ) => {
   try {
-    const response = await transporter.sendMail({
-      from: `"Zero Luggage" <${process.env.SENDER_EMAIL}>`,
-      to,
-      subject,
-      html,
-    });
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "Zero Luggage",
+          email: process.env.SENDER_EMAIL,
+        },
 
-    console.log("✅ Email sent:", response.messageId);
+        to: [
+          {
+            email: to,
+          },
+        ],
 
-    return true;
-  } catch (err: any) {
-    console.error("❌ SMTP error:", err);
+        subject,
 
-    return false;
+        htmlContent: `
+          <div style="font-family:sans-serif;padding:20px;">
+            <h2>${subject}</h2>
+            <pre style="white-space:pre-wrap;font-family:sans-serif;">
+${text}
+            </pre>
+          </div>
+        `,
+      },
+
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+          "content-type": "application/json",
+        },
+      }
+    )
+
+    console.log("✅ Email sent:", response.data)
+  } catch (error: any) {
+    console.error(
+      "❌ Brevo API Error:",
+      error?.response?.data || error.message
+    )
   }
-};
+}

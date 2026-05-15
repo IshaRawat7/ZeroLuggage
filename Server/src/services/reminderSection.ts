@@ -7,11 +7,11 @@ export const createBookingReminders = async (
 ) => {
   try {
     const pickupReminderTime = new Date(
-      pickupDate.getTime() - 60 * 60 * 1000
+      pickupDate.getTime() + 1 * 60 * 1000
     )
 
     const dropoffReminderTime = new Date(
-      dropoffDate.getTime() - 2 * 60 * 60 * 1000
+      dropoffDate.getTime() + 2 * 60 * 60 * 1000
     )
 
     await prisma.reminder.createMany({
