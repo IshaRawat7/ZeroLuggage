@@ -1,3 +1,4 @@
+import "./services/reminderSection"
 import path from "path";
 import dotenv from "dotenv";
 import fs from "fs";
@@ -12,7 +13,14 @@ import authRoutes from "./Routes/auth.routes";
 import feedbackRoutes from "./Routes/feedback.routes";
 import trackingRoutes from "./Routes/tracking.routes";
 
+
 import { errorHandler } from "./Middleware/errorMiddleware";
+
+
+
+import paymentRoutes from "./Routes/payment.routes";
+
+
 
 // Load env
 dotenv.config({
@@ -26,9 +34,10 @@ const app = express();
 /* -------------------- CORS SETUP -------------------- */
 
 const allowedOrigins = [
-  "https://zero-luggage.vercel.app",
-  "https://zero-luggage-git-main-ishas-projects-24809793.vercel.app",
-  "http://localhost:3000",
+
+    
+    "http://localhost:3000"
+
 ];
 
 app.use(
@@ -48,7 +57,8 @@ app.use(
   })
 );
 
-// ❌ DO NOT USE app.options("*", cors())
+
+
 // Express + CORS handles OPTIONS automatically
 
 /* -------------------- MIDDLEWARES -------------------- */
@@ -80,6 +90,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/luggage", luggageRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/tracking", trackingRoutes);
+app.use("/api/payment", paymentRoutes);
 
 /* -------------------- ERROR HANDLER -------------------- */
 

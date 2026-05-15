@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  email     String     @unique
+  email     String    @unique
   password  String
   phone     String
-  createdAt DateTime   @default(now())
+  createdAt DateTime  @default(now())
   otp       String?
   otpExpiry DateTime?
+
   bookings  Booking[]
   feedbacks Feedback[]
+  payment   Payment[]
 }
 
 model Feedback {
@@ -25,45 +27,69 @@ model Feedback {
   userId    Int
   message   String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Booking {
-  id              Int           @id @default(autoincrement())
-  bookingCode     String        @unique
+  id          Int    @id @default(autoincrement())
+  bookingCode String @unique
 
-  pickupLocation  String
-  pickupLat       Float
-  pickupLng       Float
+  pickupLocation String
+  pickupLat      Float
+  pickupLng      Float
 
   dropoffLocation String
   dropoffLat      Float
   dropoffLng      Float
 
-  pickupDate      DateTime
-  dropoffDate     DateTime
-  duration        String
-  luggageCount    Int
-  estimatedFare   Float
+  pickupDate    DateTime
+  dropoffDate   DateTime
+  duration      String
+  luggageCount  Int
+  estimatedFare Float
 
-  status          BookingStatus @default(PENDING)
+  status BookingStatus @default(PENDING)
 
-  userId          Int
-  user            User          @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
-  luggageItems    Luggage[]
+  luggageItems Luggage[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments  Payment[]
+  reminders Reminder[]
 }
-
 
 model Luggage {
   id        Int      @id @default(autoincrement())
   imageUrl  String?
   bookingId Int
   createdAt DateTime @default(now())
-  booking   Booking  @relation(fields: [bookingId], references: [id])
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model Reminder {
+  id Int @id @default(autoincrement())
+
+  bookingId Int
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  type ReminderType
+
+  remindAt DateTime
+  sent     Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+enum ReminderType {
+  PICKUP
+  DROPOFF
+  STORAGE_EXPIRY
 }
 
 enum BookingStatus {
@@ -72,4 +98,32 @@ enum BookingStatus {
   IN_TRANSIT
   DELIVERED
   CANCELLED
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+
+  amount   Float
+  currency String @default("INR")
+
+  razorpayOrderId   String  @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  status PaymentStatus @default(PENDING)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  bookingId Int?
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

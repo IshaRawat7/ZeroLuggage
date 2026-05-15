@@ -62,6 +62,7 @@ const nav: NavItem[] = [
   { label: "Payments", href: "/dasboard/payment", icon: Wallet },
   { label: "Subscriptions", href: "/dasboard/subscriptions", icon: Crown },
   { label: "Policies", href: "/dasboard/policies", icon: ShieldCheck },
+  { label: "UserGuideline", href: "/dasboard/userguideline", icon: ShieldCheck },
 ]
 
 const handleLogout = async () => {
