@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import Img from "@/public/travel.jpg"
+import Img from "@/public/img5.webp"
 
 export default function ExploreMorePage() {
   const highlights = [
