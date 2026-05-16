@@ -1,96 +1,238 @@
-"use client";
-import Image from "next/image";
-import Img from "@/public/img5.webp"
+"use client"
 
-export default function ExploreMorePage() {
-  const highlights = [
+import { MapPin, Package, Clock, Truck } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import dynamic from "next/dynamic"
+import { motion } from "framer-motion"
+import { useRouter, useParams } from "next/navigation"
+import { useEffect, useState } from "react"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+const TrackingMap = dynamic<any>(
+  () => import("@/components/dashboard/tracking-map"),
+  { ssr: false }
+)
+
+export default function TrackingPage() {
+  const router = useRouter()
+
+  const { trackingCode } = useParams<{
+    trackingCode: string
+  }>()
+
+  const [trackingData, setTrackingData] =
+    useState<any>(null)
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!trackingCode) return
+
+    const fetchTracking = async () => {
+      try {
+        const res = await fetch(
+          `${API_URL}/api/tracking/${trackingCode}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem(
+                "token"
+              )}`,
+            },
+          }
+        )
+
+        if (!res.ok)
+          throw new Error("Booking not found")
+
+        const data = await res.json()
+
+        setTrackingData(data)
+      } catch (err) {
+        console.error(err)
+        setTrackingData(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTracking()
+  }, [trackingCode])
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-lg">
+        Loading Tracking Details...
+      </div>
+    )
+  }
+
+  if (!trackingData) {
+    return (
+      <div className="flex justify-center items-center h-screen text-red-500 text-lg">
+        Booking not found
+      </div>
+    )
+  }
+
+  const steps = [
     {
-      title: "Eco Trails",
-      desc: "Guided hikes through lush pine forests.",
-      img: "/eco-trails.jpg",
+      id: 1,
+      label: "Picked Up",
+      icon: <MapPin size={16} />,
     },
     {
-      title: "Mall Road",
-      desc: "Shop, dine and explore local crafts.",
-      img: "/mall-road.jpg",
+      id: 2,
+      label: "In Transit",
+      icon: <Truck size={16} />,
     },
     {
-      title: "Snow View Point",
-      desc: "Take a cable car to stunning vistas.",
-      img: "/snow-view.jpg",
+      id: 3,
+      label: "Out for Delivery",
+      icon: <Package size={16} />,
     },
     {
-      title: "Cultural Gems",
-      desc: "Visit ancient temples and heritage sites.",
-      img: "/cultural-gems.jpg",
+      id: 4,
+      label: "Delivered",
+      icon: <Clock size={16} />,
     },
-  ];
+  ]
+
+  const progressPercent =
+    ((trackingData.progress - 1) /
+      (steps.length - 1)) *
+    100
 
   return (
-    <main className="font-sans text-gray-800 bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: `url(${Img.src})` }}>
-        <div className=" bg-opacity-50 p-10 rounded-lg">
-          <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
-            Discover Nainital Beyond the Lake
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <div className="max-w-7xl mx-auto space-y-10">
+
+        {/* TITLE */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <h1 className="text-3xl font-bold text-gray-800">
+            Live Shipment Tracking
           </h1>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Highlights */}
-      <section className="text-center py-16 px-6">
-        <h2 className="text-3xl font-semibold mb-10">Discover the Wonders of Nainital</h2>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {highlights.map((card) => (
-            <div key={card.title} className="bg-white rounded-xl shadow-md p-5">
-              <Image
-                src={card.img}
-                alt={card.title}
-                width={400}
-                height={250}
-                className="rounded-lg w-full h-auto"
-              />
-              <h3 className="text-xl font-bold text-blue-600 mt-4">{card.title}</h3>
-              <p className="mt-2 text-gray-600">{card.desc}</p>
+        {/* PROGRESS */}
+        <Card className="p-8 shadow-sm">
+          <h2 className="font-semibold text-lg mb-8">
+            Delivery Progress
+          </h2>
+
+          <div className="relative flex justify-between items-center">
+
+            <div className="absolute top-5 left-0 w-full h-1 bg-gray-200" />
+
+            <div
+              className="absolute top-5 left-0 h-1 bg-blue-600 transition-all duration-500"
+              style={{
+                width: `${progressPercent}%`,
+              }}
+            />
+
+            {steps.map((step) => (
+              <div
+                key={step.id}
+                className="flex flex-col items-center z-10"
+              >
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    step.id <=
+                    trackingData.progress
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  {step.icon}
+                </div>
+
+                <p className="text-xs mt-2">
+                  {step.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* MAP + DETAILS */}
+        <div className="grid lg:grid-cols-3 gap-8">
+
+          {/* MAP */}
+          <Card className="lg:col-span-2 p-6 shadow-sm">
+            <h3 className="font-semibold text-lg mb-4">
+              Live Map Location
+            </h3>
+
+            <div className="h-[520px] rounded-lg overflow-hidden border">
+
+              <TrackingMap/>
+
             </div>
-          ))}
-        </div>
-      </section>
+          </Card>
 
-      {/* Plan Your Day */}
-      <section className="text-center py-16 px-6">
-        <h2 className="text-3xl font-semibold mb-8">Plan Your Day in Nainital</h2>
-        <div className="flex flex-wrap justify-center gap-4">
-          {["Adventure", "Relaxation", "Culture", "Food"].map((interest) => (
-            <button
-              key={interest}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+          {/* DETAILS */}
+          <Card className="p-6 shadow-sm space-y-6">
+
+            <Info
+              label="Tracking ID"
+              value={trackingData.trackingId}
+              icon={<Package size={18} />}
+            />
+
+            <Info
+              label="Current Location"
+              value={trackingData.currentLocation}
+              icon={<MapPin size={18} />}
+            />
+
+            <Info
+              label="Estimated Delivery"
+              value={trackingData.estimatedDelivery}
+              icon={<Clock size={18} />}
+            />
+
+            <Button
+              className="w-full"
+              onClick={() =>
+                router.push("/dasboard")
+              }
             >
-              {interest}
-            </button>
-          ))}
+              Back to Dashboard
+            </Button>
+          </Card>
         </div>
+      </div>
+    </div>
+  )
+}
 
-        <div className="mt-10 flex flex-col md:flex-row justify-center gap-6">
-          <button className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition">
-            Book Your Experience
-          </button>
-          <button className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition">
-            Customize My Trip
-          </button>
-        </div>
-      </section>
+function Info({
+  label,
+  value,
+  icon,
+}: any) {
+  return (
+    <div className="flex items-start gap-3">
 
-      {/* Footer */}
-      <footer className="bg-blue-600 text-white text-center py-6">
-        <p>Contact Us: info@zeroluggage.com | +91 9876543210</p>
-        <p className="mt-2">
-          <a href="#" className="mx-2 hover:underline">Travel</a> | 
-          <a href="#" className="mx-2 hover:underline">Luggage</a> | 
-          <a href="#" className="mx-2 hover:underline">Fast</a> | 
-          <a href="#" className="mx-2 hover:underline">Book Now</a>
+      <div className="text-blue-600 mt-1">
+        {icon}
+      </div>
+
+      <div>
+        <p className="text-sm text-gray-500">
+          {label}
         </p>
-      </footer>
-    </main>
-  );
+
+        <p className="font-semibold text-gray-800">
+          {value}
+        </p>
+      </div>
+
+    </div>
+  )
 }
