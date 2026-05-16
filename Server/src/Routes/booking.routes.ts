@@ -43,4 +43,5 @@ router.get("/:id", auth as any, getBookingById);
 // CANCEL
 router.patch("/cancel/:id", auth as any, cancelBooking);
 
+
 export default router;

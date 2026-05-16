@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 // @ts-ignore
 import "react-toastify/dist/ReactToastify.css";
+// @ts-ignore
+import "leaflet/dist/leaflet.css";
 
 // @ts-ignore
 import "./globals.css";
