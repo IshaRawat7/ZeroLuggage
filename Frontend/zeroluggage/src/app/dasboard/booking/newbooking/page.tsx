@@ -51,7 +51,7 @@ export default function LuggageBookingForm() {
   const pickupRef = useRef<HTMLDivElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
 
-  const estimatedFare = 20.0;
+  const estimatedFare = 10.0;
   const today = new Date().toISOString().split("T")[0];
 
   const isFormValid =
@@ -621,8 +621,8 @@ export default function LuggageBookingForm() {
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-border">
-            <span className="text-foreground font-medium">
-              Estimated Fare:
+            <span className="text-foreground font-semibold text-sky-600">
+              Initial Fare(Costing afterwards may vary based on distance and duration):
             </span>
 
             <span className="text-2xl font-bold text-sky-600">

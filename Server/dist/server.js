@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("./services/reminderSection");
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const fs_1 = __importDefault(require("fs"));
@@ -17,12 +18,21 @@ const feedback_routes_1 = __importDefault(require("./Routes/feedback.routes"));
 const tracking_routes_1 = __importDefault(require("./Routes/tracking.routes"));
 const errorMiddleware_1 = require("./Middleware/errorMiddleware");
 const payment_routes_1 = __importDefault(require("./Routes/payment.routes"));
+const ai_routes_1 = __importDefault(require("./Routes/ai.routes"));
 // Load env
 dotenv_1.default.config({
     path: path_1.default.resolve(__dirname, "../.env"),
 });
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 const app = (0, express_1.default)();
+app.use((req, res, next) => {
+    console.log("\n==============================");
+    console.log("🔥 REQUEST:", req.method, req.url);
+    console.log("Origin:", req.headers.origin);
+    console.log("Cookie header:", req.headers.cookie);
+    console.log("==============================\n");
+    next();
+});
 /* -------------------- CORS SETUP -------------------- */
 const allowedOrigins = [
     "http://localhost:3000",
@@ -39,12 +49,16 @@ app.use((0, cors_1.default)({
         }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
 // Express + CORS handles OPTIONS automatically
 /* -------------------- MIDDLEWARES -------------------- */
 app.use((0, cookie_parser_1.default)());
+app.use((req, res, next) => {
+    console.log("🍪 Parsed cookies:", req.cookies);
+    next();
+});
 app.use(express_1.default.json());
 /* -------------------- STATIC FILES -------------------- */
 const uploadsPath = path_1.default.join(__dirname, "../uploads");
@@ -64,6 +78,7 @@ app.use("/api/luggage", luggage_routes_1.default);
 app.use("/api/bookings", booking_routes_1.default);
 app.use("/api/tracking", tracking_routes_1.default);
 app.use("/api/payment", payment_routes_1.default);
+app.use("/api/ai", ai_routes_1.default);
 /* -------------------- ERROR HANDLER -------------------- */
 app.use(errorMiddleware_1.errorHandler);
 /* -------------------- SERVER START -------------------- */

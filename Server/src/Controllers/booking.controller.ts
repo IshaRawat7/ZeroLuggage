@@ -85,7 +85,7 @@ export const createBooking = asyncHandler(
 
         luggageCount,
 
-        estimatedFare: fare,
+        estimatedFare: fare + luggageCount * 5 + 300, // Base fare + per luggage charge
 
         userId: req.user.id,
 

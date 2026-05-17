@@ -12,30 +12,30 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const token = localStorage.getItem("token")
+ const fetchBookings = async () => {
+  try {
 
-        const res = await fetch(`${API_URL}/api/bookings/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+   const res = await fetch(`${API_URL}/api/bookings/me`, {
+  method: "GET",
+  credentials: "include",
+})
 
-        const data = await res.json()
+    const data = await res.json()
 
-        const list = Array.isArray(data)
-          ? data
-          : data.bookings || []
+    console.log("Bookings response:", data)
 
-        setBookings(list)
-      } catch (err) {
-        console.error(err)
-        setBookings([])
-      } finally {
-        setLoading(false)
-      }
-    }
+    const list = Array.isArray(data)
+      ? data
+      : data.bookings || []
+
+    setBookings(list)
+  } catch (err) {
+    console.error(err)
+    setBookings([])
+  } finally {
+    setLoading(false)
+  }
+}
 
     fetchBookings()
   }, [])

@@ -9,4 +9,5 @@ const authMiddleware_1 = require("../Middleware/authMiddleware");
 const router = express_1.default.Router();
 // Create Razorpay Order
 router.post("/create-order", authMiddleware_1.auth, payment_controller_1.createOrder);
+console.log("🔥 PAYMENT ROUTES LOADED");
 exports.default = router;

@@ -1,20 +1,42 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
-const resend_1 = require("resend");
-const resend = new resend_1.Resend(process.env.RESEND_API_KEY);
+const axios_1 = __importDefault(require("axios"));
 const sendEmail = async (to, subject, text) => {
     try {
-        const response = await resend.emails.send({
-            from: "ishurawat267@gmail.com", // works without domain
-            to,
+        const response = await axios_1.default.post("https://api.brevo.com/v3/smtp/email", {
+            sender: {
+                name: "Zero Luggage",
+                email: process.env.SENDER_EMAIL,
+            },
+            to: [
+                {
+                    email: to,
+                },
+            ],
             subject,
-            html: `<p>${text}</p>`,
+            htmlContent: `
+          <div style="font-family:sans-serif;padding:20px;">
+            <h2>${subject}</h2>
+            <pre style="white-space:pre-wrap;font-family:sans-serif;">
+${text}
+            </pre>
+          </div>
+        `,
+        }, {
+            headers: {
+                accept: "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json",
+            },
         });
-        console.log("✅ Email sent:", response);
+        console.log("✅ Email sent:", response.data);
     }
-    catch (err) {
-        console.error("❌ Resend error:", err.message || err);
+    catch (error) {
+        console.error("❌ Brevo API Error:", error?.response?.data || error.message);
     }
 };
 exports.sendEmail = sendEmail;

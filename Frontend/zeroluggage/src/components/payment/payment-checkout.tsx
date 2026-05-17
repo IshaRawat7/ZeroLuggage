@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,10 +14,12 @@ declare global {
   }
 }
 
-export function PaymentCheckout() {
+export function PaymentCheckout({ bookingId }: { bookingId: string }) {
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+   const [booking, setBooking] = useState<any>(null)
+const [loading, setLoading] = useState(true)
 
   const [formData, setFormData] = useState({
     promoCode: "",
@@ -43,22 +45,20 @@ export function PaymentCheckout() {
     try {
       setIsProcessing(true)
 
-      // 1️ Create order from backend
-      const res = await fetch(
+    const res = await fetch(
   `${process.env.NEXT_PUBLIC_API_URL}/api/payment/create-order`,
   {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
+    credentials: "include",
     body: JSON.stringify({
       amount: 40,
       bookingId: 1,
     }),
   }
-)
-
+);
       const order = await res.json()
 
       // 2️ Load Razorpay SDK
@@ -101,6 +101,29 @@ export function PaymentCheckout() {
       setIsProcessing(false)
     }
   }
+ 
+
+useEffect(() => {
+  const fetchBooking = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}`,
+        {
+          credentials: "include",
+        }
+      )
+
+      const data = await res.json()
+      setBooking(data.booking)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  fetchBooking()
+}, [bookingId])
 
   if (isSuccess) {
     return (
@@ -135,59 +158,87 @@ export function PaymentCheckout() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Booking Summary */}
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Booking Summary</h2>
+         <div className="space-y-6">
+  <Card className="p-6">
+    <h2 className="text-xl font-bold mb-4">Booking Summary</h2>
 
-              <div className="space-y-4 mb-6">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Pickup Location
-                  </p>
-                  <p className="font-semibold">Mussoorie</p>
-                </div>
+    <div className="space-y-4 mb-6">
+      <div>
+        <p className="text-sm text-muted-foreground mb-1">
+          Pickup Location
+        </p>
+        <p className="font-semibold">
+          {booking?.pickupLocation || "Loading..."}
+        </p>
+      </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Date</p>
-                    <p className="font-semibold">October 25, 2025</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Time</p>
-                    <p className="font-semibold">10:30 AM</p>
-                  </div>
-                </div>
-              </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">Date</p>
+          <p className="font-semibold">
+            {booking?.pickupDate
+              ? new Date(booking.pickupDate).toLocaleDateString()
+              : "Loading..."}
+          </p>
+        </div>
 
-              <div className="border-t pt-4">
-                <h3 className="font-semibold mb-3">Cost Breakdown</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Distance Charge
-                    </span>
-                    <span>₹25.00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Luggage Fee
-                    </span>
-                    <span>₹5.00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Delivery Speed (Express)
-                    </span>
-                    <span>₹10.00</span>
-                  </div>
-                  <div className="border-t pt-2 mt-2 flex justify-between font-bold">
-                    <span>Total Amount</span>
-                    <span className="text-lg">₹40.00</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">Time</p>
+          <p className="font-semibold">
+            {booking?.pickupDate
+              ? new Date(booking.pickupDate).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "Loading..."}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div className="border-t pt-4">
+      <h3 className="font-semibold mb-3">Cost Breakdown</h3>
+
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Distance Charge</span>
+          <span>
+            ₹
+            {booking?.distanceCharge ??
+              Math.round((booking?.estimatedFare || 0) * 0.6)}
+          </span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Luggage Fee</span>
+          <span>
+            ₹
+            {booking?.luggageFee ??
+              Math.round((booking?.estimatedFare || 0) * 0.2)}
+          </span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">
+            Delivery Speed (Express)
+          </span>
+          <span>
+            ₹
+            {booking?.expressFee ??
+              Math.round((booking?.estimatedFare || 0) * 0.2)}
+          </span>
+        </div>
+
+        <div className="border-t pt-2 mt-2 flex justify-between font-bold">
+          <span>Total Amount</span>
+          <span className="text-lg">
+            ₹{booking?.estimatedFare || 0}
+          </span>
+        </div>
+      </div>
+    </div>
+  </Card>
+</div>
 
           {/* Payment Section */}
           <div className="space-y-6">

@@ -9,60 +9,67 @@ const razorpay = new Razorpay({
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { amount, bookingId } = req.body;
+    const { bookingId } = req.body;
     const userId = (req as any).user?.id;
 
-    // Validate input
-    if (!amount) {
-      return res.status(400).json({ error: "Amount is required" });
-    }
-
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    //  Optional: validate booking exists
+    // 🔥 ALWAYS calculate amount from DB (NEVER frontend)
+    let amount = 0;
+
     if (bookingId) {
-      const booking = await prisma.booking.findUnique({
-        where: { id: bookingId },
+      const booking = await prisma.booking.findFirst({
+        where: {
+          id: bookingId,
+          userId, // 🔐 IMPORTANT: ownership check
+        },
       });
 
       if (!booking) {
-        return res.status(404).json({ error: "Booking not found" });
+        return res.status(404).json({
+          success: false,
+          error: "Booking not found",
+        });
       }
+
+      amount = booking.estimatedFare;
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: "BookingId required",
+      });
     }
 
-    //  Create Razorpay order
+    // 🔥 Razorpay expects paise
     const options = {
-      amount: amount * 100, // ₹ → paise
+      amount: Math.round(amount * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     };
 
     const order = await razorpay.orders.create(options);
 
-    //  Save payment in DB (multiple allowed now)
     const payment = await prisma.payment.create({
       data: {
         amount,
         razorpayOrderId: order.id,
         userId,
-        bookingId: bookingId || null,
+        bookingId,
         status: "PENDING",
       },
     });
 
-    // Send clean response
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       order,
       paymentId: payment.id,
     });
-
   } catch (err: any) {
     console.error("Create Order Error:", err);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: err.message || "Order creation failed",
     });

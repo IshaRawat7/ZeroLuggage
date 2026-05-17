@@ -44,36 +44,33 @@ export default function DashboardPage() {
   const [bookings, setBookings] = useState<any[]>([])
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const user = localStorage.getItem("user")
-        const token = localStorage.getItem("token")
+  const fetchBookings = async () => {
+    try {
+      const user = localStorage.getItem("user")
 
-        if (user) {
-          const parsedUser = JSON.parse(user)
-
-          setUserName(parsedUser.name || "")
-
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/me`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-
-          const data = await res.json()
-
-          setBookings(data)
-        }
-      } catch (error) {
-        console.log(error)
+      if (user) {
+        const parsedUser = JSON.parse(user)
+        setUserName(parsedUser.name || "")
       }
-    }
 
-    fetchBookings()
-  }, [])
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/me`,
+        {
+          credentials: "include", // 🔥 cookie is automatically sent
+        }
+      )
+
+      if (!res.ok) throw new Error("Failed to fetch bookings")
+
+      const data = await res.json()
+      setBookings(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  fetchBookings()
+}, [])
 
   /* -------------------- STATS -------------------- */
 
@@ -154,7 +151,7 @@ export default function DashboardPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/feedback/submit`,
         {
           method: "POST",
-
+           credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

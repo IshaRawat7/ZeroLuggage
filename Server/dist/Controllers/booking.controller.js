@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cancelBooking = exports.getBookingById = exports.getMyBookings = exports.createBooking = void 0;
+const sendEmail_1 = require("../utils/sendEmail");
+const sendWhatsapp_1 = require("../utils/sendWhatsapp");
+const Formatter_1 = require("../utils/Formatter");
+const reminderSection_1 = require("../services/reminderSection");
 const prismaClient_1 = require("../prisma/prismaClient");
 const asyncHandler_1 = require("../utils/asyncHandler");
 /**
@@ -17,13 +21,29 @@ exports.createBooking = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { pickupLocation, pickupLat, pickupLng, dropoffLocation, dropoffLat, dropoffLng, pickupDate, dropoffDate, duration, luggageItems, estimatedFare, } = req.body;
     const luggageFiles = req.files;
     if (luggageFiles && luggageFiles.length > 5) {
-        return res.status(400).json({ message: "Maximum 5 luggage images allowed" });
+        return res.status(400).json({
+            message: "Maximum 5 luggage images allowed",
+        });
     }
-    if (!req.user?.id)
-        return res.status(401).json({ message: "Unauthorized" });
-    // Convert numeric fields safely
+    if (!req.user?.id) {
+        return res.status(401).json({
+            message: "Unauthorized",
+        });
+    }
     const luggageCount = toInt(luggageItems);
     const fare = toInt(estimatedFare);
+    // Get logged in user
+    const user = await prismaClient_1.prisma.user.findUnique({
+        where: {
+            id: req.user.id,
+        },
+    });
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found",
+        });
+    }
+    // Create booking
     const booking = await prismaClient_1.prisma.booking.create({
         data: {
             bookingCode: `ZL-${Date.now()}`,
@@ -47,9 +67,59 @@ exports.createBooking = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
                 }
                 : undefined,
         },
-        include: { luggageItems: true },
+        include: {
+            luggageItems: true,
+        },
     });
-    res.status(201).json({ success: true, message: "Booking created successfully!", booking });
+    // CREATE REMINDERS
+    await (0, reminderSection_1.createBookingReminders)(booking.id, new Date(pickupDate), new Date(dropoffDate));
+    // SEND CONFIRMATION EMAIL
+    await (0, sendEmail_1.sendEmail)(user.email, "Booking Confirmed - ZeroLuggage", `
+Hello ${user.name},
+
+Your booking has been confirmed successfully 🎒
+
+Booking Code:
+${booking.bookingCode}
+
+Pickup Location:
+${booking.pickupLocation}
+
+Dropoff Location:
+${booking.dropoffLocation}
+
+Pickup Time:
+${booking.pickupDate}
+
+Dropoff Time:
+${booking.dropoffDate}
+
+Estimated Fare:
+₹${booking.estimatedFare}
+
+Thank you for choosing ZeroLuggage.
+`);
+    await (0, sendWhatsapp_1.sendWhatsAppMessage)({
+        phone: (0, Formatter_1.formatIndianPhone)(user.phone),
+        message: `Hello ${user.name},
+
+Your booking has been confirmed 🎒
+
+Booking Code: ${booking.bookingCode}
+
+Pickup: ${booking.pickupLocation}
+
+Dropoff: ${booking.dropoffLocation}
+
+Fare: ₹${booking.estimatedFare}
+
+Thank you for choosing ZeroLuggage.`,
+    });
+    res.status(201).json({
+        success: true,
+        message: "Booking created successfully!",
+        booking,
+    });
 });
 /**
  * GET LOGGED-IN USER BOOKINGS

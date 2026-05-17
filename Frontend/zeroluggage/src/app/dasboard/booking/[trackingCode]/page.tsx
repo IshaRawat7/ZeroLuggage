@@ -27,39 +27,32 @@ export default function TrackingPage() {
 
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (!trackingCode) return
+ useEffect(() => {
+  if (!trackingCode) return
 
-    const fetchTracking = async () => {
-      try {
-        const res = await fetch(
-          `${API_URL}/api/tracking/${trackingCode}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem(
-                "token"
-              )}`,
-            },
-          }
-        )
+  const fetchTracking = async () => {
+    try {
+      const res = await fetch(
+        `${API_URL}/api/tracking/${trackingCode}`,
+        {
+          credentials: "include", // 🔥 IMPORTANT
+        }
+      )
 
-        if (!res.ok)
-          throw new Error("Booking not found")
+      if (!res.ok) throw new Error("Booking not found")
 
-        const data = await res.json()
-
-        setTrackingData(data)
-      } catch (err) {
-        console.error(err)
-        setTrackingData(null)
-      } finally {
-        setLoading(false)
-      }
+      const data = await res.json()
+      setTrackingData(data)
+    } catch (err) {
+      console.error(err)
+      setTrackingData(null)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    fetchTracking()
-  }, [trackingCode])
-
+  fetchTracking()
+}, [trackingCode])
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-lg">

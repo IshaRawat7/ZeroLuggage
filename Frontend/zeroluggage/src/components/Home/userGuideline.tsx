@@ -21,9 +21,9 @@ export default function UserGuidelinesPage() {
 
     {
       step: "02",
-      title: "Place the ArUco Marker Beside It",
+      title: "Place the ArUco Marker On Top",
       description:
-        "Keep the ArUco marker clearly visible beside the luggage. Do not fold, crop, or block the marker.",
+        "Keep the ArUco marker clearly visible on top of  the luggage. Do not fold, crop, or block the marker.",
       icon: <ScanLine className="w-7 h-7" />,
       image:
         "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?q=80&w=1200&auto=format&fit=crop",

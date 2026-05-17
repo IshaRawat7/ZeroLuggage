@@ -32,7 +32,9 @@ export const auth = (
         message: "Not authenticated (no token found)"
       });
     }
-
+console.log("🔐 AUTH CHECK");
+console.log("Cookies:", req.cookies);
+console.log("Token:", req.cookies?.token);
     if (!process.env.JWT_SECRET) {
       return res.status(500).json({
         message: "JWT secret missing"

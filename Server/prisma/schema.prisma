@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  phone     String
-  createdAt DateTime  @default(now())
-  otp       String?
-  otpExpiry DateTime?
-
-  bookings  Booking[]
-  feedbacks Feedback[]
-  payment   Payment[]
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  password    String
+  phone       String
+  createdAt   DateTime     @default(now())
+  otp         String?
+  otpExpiry   DateTime?
+  aiProjects  AIProject[]
+  bookings    Booking[]
+  feedbacks   Feedback[]
+  mediaAssets MediaAsset[]
+  payment     Payment[]
 }
 
 model Feedback {
@@ -27,40 +28,31 @@ model Feedback {
   userId    Int
   message   String
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Booking {
-  id          Int    @id @default(autoincrement())
-  bookingCode String @unique
-
-  pickupLocation String
-  pickupLat      Float
-  pickupLng      Float
-
+  id              Int           @id @default(autoincrement())
+  bookingCode     String        @unique
+  pickupLocation  String
   dropoffLocation String
+  pickupDate      DateTime
+  dropoffDate     DateTime
+  duration        String
+  luggageCount    Int
+  estimatedFare   Float
+  status          BookingStatus @default(PENDING)
+  userId          Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   dropoffLat      Float
   dropoffLng      Float
-
-  pickupDate    DateTime
-  dropoffDate   DateTime
-  duration      String
-  luggageCount  Int
-  estimatedFare Float
-
-  status BookingStatus @default(PENDING)
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  luggageItems Luggage[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  payments  Payment[]
-  reminders Reminder[]
+  pickupLat       Float
+  pickupLng       Float
+  user            User          @relation(fields: [userId], references: [id])
+  luggageItems    Luggage[]
+  payments        Payment[]
+  reminders       Reminder[]
 }
 
 model Luggage {
@@ -68,22 +60,104 @@ model Luggage {
   imageUrl  String?
   bookingId Int
   createdAt DateTime @default(now())
-
-  booking Booking @relation(fields: [bookingId], references: [id])
+  booking   Booking  @relation(fields: [bookingId], references: [id])
 }
 
 model Reminder {
-  id Int @id @default(autoincrement())
-
+  id        Int          @id @default(autoincrement())
   bookingId Int
-  booking   Booking @relation(fields: [bookingId], references: [id])
+  type      ReminderType
+  remindAt  DateTime
+  sent      Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  booking   Booking      @relation(fields: [bookingId], references: [id])
+}
 
-  type ReminderType
+model Payment {
+  id                Int           @id @default(autoincrement())
+  amount            Float
+  currency          String        @default("INR")
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  status            PaymentStatus @default(PENDING)
+  userId            Int
+  bookingId         Int?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  booking           Booking?      @relation(fields: [bookingId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+}
 
-  remindAt DateTime
-  sent     Boolean  @default(false)
-
+model AIProject {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  name      String   @default("default-project")
   createdAt DateTime @default(now())
+  jobs      AIJob[]
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model MediaAsset {
+  id        Int          @id @default(autoincrement())
+  userId    Int?
+  url       String
+  type      MediaType
+  fileName  String?
+  size      Int?
+  createdAt DateTime     @default(now())
+  jobLinks  AIJobMedia[]
+  user      User?        @relation(fields: [userId], references: [id])
+}
+
+model AIJob {
+  id           Int               @id @default(autoincrement())
+  projectId    Int
+  status       JobStatus         @default(PENDING)
+  model        String
+  endpoint     String?
+  errorMessage String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  project      AIProject         @relation(fields: [projectId], references: [id])
+  media        AIJobMedia[]
+  results      DetectionResult[]
+  dimension    DimensionResult?
+}
+
+model AIJobMedia {
+  id        Int        @id @default(autoincrement())
+  jobId     Int
+  mediaId   Int
+  viewType  ViewType
+  createdAt DateTime   @default(now())
+  job       AIJob      @relation(fields: [jobId], references: [id])
+  media     MediaAsset @relation(fields: [mediaId], references: [id])
+}
+
+model DetectionResult {
+  id         Int      @id @default(autoincrement())
+  jobId      Int
+  label      String
+  confidence Float
+  x          Float
+  y          Float
+  width      Float
+  height     Float
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  job        AIJob    @relation(fields: [jobId], references: [id])
+}
+
+model DimensionResult {
+  id        Int      @id @default(autoincrement())
+  jobId     Int      @unique
+  width     Float
+  height    Float
+  depth     Float
+  unit      String   @default("cm")
+  createdAt DateTime @default(now())
+  job       AIJob    @relation(fields: [jobId], references: [id])
 }
 
 enum ReminderType {
@@ -100,30 +174,25 @@ enum BookingStatus {
   CANCELLED
 }
 
-model Payment {
-  id Int @id @default(autoincrement())
-
-  amount   Float
-  currency String @default("INR")
-
-  razorpayOrderId   String  @unique
-  razorpayPaymentId String?
-  razorpaySignature String?
-
-  status PaymentStatus @default(PENDING)
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  bookingId Int?
-  booking   Booking? @relation(fields: [bookingId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ViewType {
+  FRONT
+  SIDE
 }

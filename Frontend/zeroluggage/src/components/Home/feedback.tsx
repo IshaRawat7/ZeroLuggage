@@ -11,16 +11,23 @@ export default function FeedbackPage() {
     fetchFeedbacks()
   }, [])
 
-  const fetchFeedbacks = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback`)
-      const data = await res.json()
-      setFeedbacks(data)
-    } catch (err) {
-      console.error("Failed to fetch feedbacks:", err)
-    }
-  }
+ const fetchFeedbacks = async () => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback`, {
+      credentials: "include",
+    })
 
+    const data = await res.json()
+
+    if (Array.isArray(data)) {
+      setFeedbacks(data)
+    } else {
+      setFeedbacks(data.feedbacks || [])
+    }
+  } catch (err) {
+    console.error("Failed to fetch feedbacks:", err)
+  }
+}
   return (
     <div className="mx-auto max-w-8xl px-6 py-6">
       <header>
@@ -54,7 +61,7 @@ export default function FeedbackPage() {
           },
         }}
       >
-        {feedbacks.map((f, index) => (
+    {feedbacks.map((f, index) => (
           <motion.div
             key={f.id}
             variants={{

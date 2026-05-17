@@ -10,5 +10,6 @@ router.post(
   auth as unknown as express.RequestHandler,
   createOrder
 );
+console.log("🔥 PAYMENT ROUTES LOADED");
 
 export default router;

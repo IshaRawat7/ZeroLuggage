@@ -17,6 +17,12 @@
       {
         "frame-title": "off"
       }
+    ],
+    "axe/forms": [
+      "default",
+      {
+        "label": "off"
+      }
     ]
   }
 }

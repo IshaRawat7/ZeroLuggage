@@ -19,6 +19,7 @@ import { errorHandler } from "./Middleware/errorMiddleware";
 
 
 import paymentRoutes from "./Routes/payment.routes";
+import aiRoutes from "./Routes/ai.routes";
 
 
 
@@ -30,11 +31,19 @@ dotenv.config({
 console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
+app.use((req, res, next) => {
+  console.log("\n==============================");
+  console.log("🔥 REQUEST:", req.method, req.url);
+  console.log("Origin:", req.headers.origin);
+  console.log("Cookie header:", req.headers.cookie);
+  console.log("==============================\n");
+  next();
+});
 
 /* -------------------- CORS SETUP -------------------- */
 
 const allowedOrigins = [
-  "https://zero-luggage-6ubb.vercel.app",
+  "http://localhost:3000",
     
 ];
 
@@ -62,6 +71,10 @@ app.use(
 /* -------------------- MIDDLEWARES -------------------- */
 
 app.use(cookieParser());
+app.use((req, res, next) => {
+  console.log("🍪 Parsed cookies:", req.cookies);
+  next();
+});
 app.use(express.json());
 
 /* -------------------- STATIC FILES -------------------- */
@@ -89,6 +102,8 @@ app.use("/api/luggage", luggageRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/tracking", trackingRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/ai", aiRoutes)
+
 
 /* -------------------- ERROR HANDLER -------------------- */
 

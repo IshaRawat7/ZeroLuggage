@@ -7,6 +7,9 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
+import Img9 from "@/public/marker.jpeg"
+import Img0 from "@/public/imga.jpeg"
+import Img1 from "@/public/topview.jpg"
 
 export default function UserGuidelinesPage() {
   const steps = [
@@ -17,17 +20,16 @@ export default function UserGuidelinesPage() {
         "Keep the luggage/object on a flat surface with proper lighting. Avoid cluttered or dark backgrounds for better detection accuracy.",
       icon: <Package className="w-7 h-7" />,
       image:
-        "https://images.unsplash.com/photo-1527631746610-bca00a040d60?q=80&w=1200&auto=format&fit=crop",
+        `${Img0.src}`,
     },
 
     {
       step: "02",
-      title: "Place the ArUco Marker Beside It",
+      title: "Place the ArUco Marker On Top",
       description:
-        "Keep the ArUco marker clearly visible beside the luggage. Do not fold, crop, or block the marker.",
+        "Keep the ArUco marker clearly visible on top of the luggage. Do not fold, crop, or block the marker.",
       icon: <ScanLine className="w-7 h-7" />,
-      image:
-        "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?q=80&w=1200&auto=format&fit=crop",
+      image:`${Img9.src}`,
     },
 
     {
@@ -37,7 +39,7 @@ export default function UserGuidelinesPage() {
         "Hold the camera directly above the luggage and capture a clear top-view image with both luggage and marker fully visible.",
       icon: <Camera className="w-7 h-7" />,
       image:
-        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
+       `${Img1.src}`,
     },
   ];
 
@@ -178,7 +180,7 @@ export default function UserGuidelinesPage() {
 
         {/* CTA */}
         <div className="text-center mt-20">
-           <Link href="/dasboard/booking/newbooking">
+           <Link href="/adDashboard/upload">
           <button  className="bg-slate-900 hover:bg-black text-white px-10 py-5 rounded-2xl text-lg font-semibold shadow-xl hover:scale-105 transition-all duration-300">
             Continue to Upload
           </button>
