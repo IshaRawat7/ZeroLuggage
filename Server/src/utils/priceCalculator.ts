@@ -1,60 +1,58 @@
-
-
-type DimensionInput = {
-  width: number
-  height: number
-  depth: number
-  durationDays: number
-}
-
-export const calculateLuggagePrice = ({
+export const calculatePricing = ({
   width,
   height,
   depth,
-  durationDays,
-}: DimensionInput) => {
-  
+  distance = 0,
+  priority = false,
+}: {
+  width: number
+  height: number
+  depth: number
+  distance?: number
+  priority?: boolean
+}) => {
+  /* ---------------- VOLUME ---------------- */
 
-  const volume = width * height * depth
+  const volume = (width * height * depth) / 1000
 
+  /* ---------------- CATEGORY ---------------- */
 
+  let category = "Small"
 
-  let basePrice = 0
-  let sizeCategory = ""
-
-  if (volume <= 40000) {
-    // Small luggage
-    basePrice = 99
-    sizeCategory = "Small"
-  } else if (volume <= 100000) {
-    // Medium luggage
-    basePrice = 199
-    sizeCategory = "Medium"
-  } else {
-    // Large luggage
-    basePrice = 349
-    sizeCategory = "Large"
+  if (volume >= 40 && volume < 80) {
+    category = "Medium"
   }
 
-  const dailyCharge = durationDays * 30
+  if (volume >= 80) {
+    category = "Large"
+  }
 
+  /* ---------------- PRICING ---------------- */
 
+  const baseFare = 10
+  const volumeRate = 1.5
+  const distanceRate = 5
 
-  const total =
-    basePrice +
-    dailyCharge
+  const urgencyFee = priority ? 150 : 0
+
+  const totalCost =
+    baseFare +
+    volume * volumeRate +
+    distance * distanceRate +
+    urgencyFee
 
   return {
-    sizeCategory,
-
     volume,
+    category,
 
-    breakdown: {
-      basePrice,
-      dailyCharge,
-    },
+    baseFare,
+    volumeRate,
 
-    total,
+    distance,
+    distanceRate,
+
+    urgencyFee,
+
+    totalCost: Math.round(totalCost),
   }
 }
-

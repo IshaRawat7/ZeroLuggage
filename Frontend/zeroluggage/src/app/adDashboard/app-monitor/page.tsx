@@ -72,9 +72,9 @@ export default function ApiMonitorPage() {
             <div className="flex items-center justify-between p-4 rounded-xl border">
               <span>Status</span>
 
-              <div className="flex items-center gap-2 text-yellow-600 font-medium">
-                <AlertTriangle className="size-4" />
-                Pending Connection
+              <div className="flex items-center gap-2 text-green-600 font-medium">
+                 <CheckCircle2 className="size-4" />
+                Contection established 
               </div>
             </div>
 

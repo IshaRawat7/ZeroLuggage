@@ -5,27 +5,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.upload = void 0;
 const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-const createFolder = (folder) => {
-    if (!fs_1.default.existsSync(folder)) {
-        fs_1.default.mkdirSync(folder, { recursive: true });
+/* =====================================================
+   MULTER MEMORY STORAGE
+   - keeps files in memory
+   - enables file.buffer
+===================================================== */
+const storage = multer_1.default.memoryStorage();
+/* =====================================================
+   FILE FILTER
+===================================================== */
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+        cb(null, true);
+    }
+    else {
+        cb(new Error("Only image files are allowed"));
     }
 };
-createFolder("uploads/front");
-createFolder("uploads/side");
-const storage = multer_1.default.diskStorage({
-    destination: (req, file, cb) => {
-        if (file.fieldname === "frontImage") {
-            cb(null, "uploads/front");
-        }
-        else {
-            cb(null, "uploads/side");
-        }
+/* =====================================================
+   EXPORT MULTER
+===================================================== */
+exports.upload = (0, multer_1.default)({
+    storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
     },
-    filename: (req, file, cb) => {
-        const unique = Date.now() + path_1.default.extname(file.originalname);
-        cb(null, unique);
-    },
+    fileFilter,
 });
-exports.upload = (0, multer_1.default)({ storage });

@@ -7,69 +7,71 @@ export const createAIJob = async ({
   frontImage: Express.Multer.File
   sideImage: Express.Multer.File
 }) => {
+  try {
+    /* ---------------- PROJECT ---------------- */
 
-  /* ---------------- CREATE PROJECT ---------------- */
-
-  const project = await prisma.aIProject.create({
-    data: {
-      name: "Luggage Dimension Detection",
-    },
-  })
-
-  /* ---------------- FRONT IMAGE ---------------- */
-
-  const frontMedia = await prisma.mediaAsset.create({
-    data: {
-      url: `/uploads/front/${frontImage.filename}`,
-      type: "IMAGE",
-      fileName: frontImage.originalname,
-      size: frontImage.size,
-    },
-  })
-
-  /* ---------------- SIDE IMAGE ---------------- */
-
-  const sideMedia = await prisma.mediaAsset.create({
-    data: {
-      url: `/uploads/side/${sideImage.filename}`,
-      type: "IMAGE",
-      fileName: sideImage.originalname,
-      size: sideImage.size,
-    },
-  })
-
-  /* ---------------- CREATE AI JOB ---------------- */
-
-  const job = await prisma.aIJob.create({
-    data: {
-      projectId: project.id,
-
-      status: "PENDING",
-
-      model: "opencv-dimension-model",
-
-      media: {
-        create: [
-          {
-            mediaId: frontMedia.id,
-            viewType: "FRONT",
-          },
-          {
-            mediaId: sideMedia.id,
-            viewType: "SIDE",
-          },
-        ],
+    const project = await prisma.aIProject.create({
+      data: {
+        name: "Luggage Dimension Detection",
       },
-    },
+    })
 
-    include: {
-      media: {
-        include: {
-          media: true,
+    /* ---------------- FRONT MEDIA ---------------- */
+
+    const frontMedia = await prisma.mediaAsset.create({
+      data: {
+        url: `temp/front-${Date.now()}-${frontImage.originalname}`,
+        type: "IMAGE",
+        fileName: frontImage.originalname,
+        size: frontImage.size,
+      },
+    })
+
+    /* ---------------- SIDE MEDIA ---------------- */
+
+    const sideMedia = await prisma.mediaAsset.create({
+      data: {
+        url: `temp/side-${Date.now()}-${sideImage.originalname}`,
+        type: "IMAGE",
+        fileName: sideImage.originalname,
+        size: sideImage.size,
+      },
+    })
+
+    /* ---------------- AI JOB ---------------- */
+
+    const job = await prisma.aIJob.create({
+      data: {
+        projectId: project.id,
+        status: "PROCESSING",
+        model: "opencv-dimension-model",
+
+        media: {
+          create: [
+            {
+              mediaId: frontMedia.id,
+              viewType: "FRONT",
+            },
+            {
+              mediaId: sideMedia.id,
+              viewType: "SIDE",
+            },
+          ],
         },
       },
-    },
-  })
 
-  return job
+      include: {
+        media: {
+          include: {
+            media: true,
+          },
+        },
+      },
+    })
+
+    return job
+  } catch (error) {
+    console.error("createAIJob error:", error)
+    throw error
+  }
 }

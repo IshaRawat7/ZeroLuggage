@@ -33,18 +33,12 @@ router.post(
    GET SINGLE JOB
 ===================================================== */
 
-router.get(
-  "/job/:jobId",
-  getJobResult
-)
+router.get("/job/:jobId", getJobResult)
 
 /* =====================================================
    GET HISTORY
 ===================================================== */
 
-router.get(
-  "/history",
-  getAIHistory
-)
+router.get("/history", getAIHistory)
 
 export default router

@@ -1,11 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAIHistory = exports.getJobResult = exports.uploadLuggageImages = void 0;
+const axios_1 = __importDefault(require("axios"));
+const form_data_1 = __importDefault(require("form-data"));
+const stream_1 = require("stream");
 const prismaClient_1 = require("../prisma/prismaClient");
 const ai_service_1 = require("../services/ai.service");
-/* =====================================================
-   UPLOAD LUGGAGE IMAGES
-===================================================== */
+const priceCalculator_1 = require("../utils/priceCalculator");
 const uploadLuggageImages = async (req, res) => {
     try {
         const files = req.files;
@@ -14,40 +18,122 @@ const uploadLuggageImages = async (req, res) => {
         if (!frontImage || !sideImage) {
             return res.status(400).json({
                 success: false,
-                message: "Both front and side images are required",
+                message: "Both images are required",
             });
         }
+        console.log("Front:", frontImage.originalname);
+        console.log("Side:", sideImage.originalname);
+        /* ---------------- CREATE JOB ---------------- */
         const job = await (0, ai_service_1.createAIJob)({
             frontImage,
             sideImage,
         });
+        /* ---------------- FORM DATA ---------------- */
+        const formData = new form_data_1.default();
+        const frontStream = stream_1.Readable.from(frontImage.buffer);
+        const sideStream = stream_1.Readable.from(sideImage.buffer);
+        formData.append("frontImage", frontStream, {
+            filename: frontImage.originalname,
+            contentType: frontImage.mimetype,
+            knownLength: frontImage.size,
+        });
+        formData.append("sideImage", sideStream, {
+            filename: sideImage.originalname,
+            contentType: sideImage.mimetype,
+            knownLength: sideImage.size,
+        });
+        /* ---------------- SEND TO FLASK ---------------- */
+        const aiResponse = await axios_1.default.post("https://abide-clunky-rubber.ngrok-free.dev/process", formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+            maxBodyLength: Infinity,
+        });
+        const aiData = aiResponse.data;
+        console.log("AI RESPONSE:", aiData);
+        /* ---------------- SAVE DIMENSIONS ---------------- */
+        if (aiData.dimensions) {
+            await prismaClient_1.prisma.dimensionResult.create({
+                data: {
+                    width: aiData.dimensions.width,
+                    height: aiData.dimensions.height,
+                    depth: aiData.dimensions.depth,
+                    unit: aiData.dimensions.unit || "cm",
+                    jobId: job.id,
+                },
+            });
+            /* ---------------- CALCULATE PRICING ---------------- */
+            const pricing = (0, priceCalculator_1.calculatePricing)({
+                width: aiData.dimensions.width,
+                height: aiData.dimensions.height,
+                depth: aiData.dimensions.depth,
+                distance: 25,
+                priority: false,
+            });
+            /* ---------------- SAVE PRICING ---------------- */
+            await prismaClient_1.prisma.pricingResult.create({
+                data: {
+                    baseFare: pricing.baseFare,
+                    volume: pricing.volume,
+                    volumeRate: pricing.volumeRate,
+                    distance: pricing.distance,
+                    distanceRate: pricing.distanceRate,
+                    urgencyFee: pricing.urgencyFee,
+                    totalCost: pricing.totalCost,
+                    category: pricing.category,
+                    jobId: job.id,
+                },
+            });
+        }
+        /* ---------------- SAVE DETECTIONS ---------------- */
+        if (Array.isArray(aiData.detections) &&
+            aiData.detections.length > 0) {
+            await prismaClient_1.prisma.detectionResult.createMany({
+                data: aiData.detections.map((item) => ({
+                    label: item.label,
+                    confidence: item.confidence,
+                    x: item.x ?? 0,
+                    y: item.y ?? 0,
+                    width: item.width ?? 0,
+                    height: item.height ?? 0,
+                    jobId: job.id,
+                })),
+            });
+        }
+        /* ---------------- SAVE VOLUME ---------------- */
+        if (aiData.volume) {
+            await prismaClient_1.prisma.volumeResult.create({
+                data: {
+                    value: aiData.volume.value,
+                    unit: aiData.volume.unit || "liters",
+                    jobId: job.id,
+                },
+            });
+        }
+        /* ---------------- SUCCESS ---------------- */
         return res.status(201).json({
             success: true,
-            message: "Images uploaded successfully",
-            job,
+            jobId: job.id,
+            aiData,
         });
     }
     catch (error) {
-        console.error("UPLOAD ERROR:", error);
+        console.error("UPLOAD ERROR:", error?.response?.data || error.message);
         return res.status(500).json({
             success: false,
-            message: "Upload failed",
+            message: error?.response?.data?.error ||
+                error.message ||
+                "Upload failed",
         });
     }
 };
 exports.uploadLuggageImages = uploadLuggageImages;
 /* =====================================================
-   GET SINGLE JOB RESULT
+   GET SINGLE JOB
 ===================================================== */
 const getJobResult = async (req, res) => {
     try {
         const jobId = Number(req.params.jobId);
-        if (!jobId) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid job id",
-            });
-        }
         const result = await prismaClient_1.prisma.aIJob.findUnique({
             where: {
                 id: jobId,
@@ -59,31 +145,26 @@ const getJobResult = async (req, res) => {
                     },
                 },
                 dimension: true,
+                volume: true,
+                pricing: true,
                 results: true,
             },
         });
-        if (!result) {
-            return res.status(404).json({
-                success: false,
-                message: "Job not found",
-            });
-        }
-        return res.status(200).json({
+        return res.json({
             success: true,
             result,
         });
     }
     catch (error) {
-        console.error("FETCH RESULT ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: "Failed to fetch result",
+            message: "Failed to fetch job",
         });
     }
 };
 exports.getJobResult = getJobResult;
 /* =====================================================
-   GET ALL HISTORY
+   HISTORY
 ===================================================== */
 const getAIHistory = async (req, res) => {
     try {
@@ -98,16 +179,17 @@ const getAIHistory = async (req, res) => {
                     },
                 },
                 dimension: true,
+                volume: true,
+                pricing: true,
                 results: true,
             },
         });
-        return res.status(200).json({
+        return res.json({
             success: true,
             history,
         });
     }
     catch (error) {
-        console.error("HISTORY ERROR:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to fetch history",

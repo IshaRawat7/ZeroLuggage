@@ -122,6 +122,8 @@ model AIJob {
   project      AIProject         @relation(fields: [projectId], references: [id])
   media        AIJobMedia[]
   results      DetectionResult[]
+  volume       VolumeResult?
+  pricing      PricingResult?
   dimension    DimensionResult?
 }
 
@@ -158,6 +160,38 @@ model DimensionResult {
   unit      String   @default("cm")
   createdAt DateTime @default(now())
   job       AIJob    @relation(fields: [jobId], references: [id])
+}
+
+model VolumeResult {
+  id        Int      @id @default(autoincrement())
+  jobId     Int      @unique
+  value     Float
+  unit      String   @default("liters")
+  createdAt DateTime @default(now())
+
+  job AIJob @relation(fields: [jobId], references: [id])
+}
+
+model PricingResult {
+  id Int @id @default(autoincrement())
+
+  baseFare   Float
+  volume     Float
+  volumeRate Float
+
+  distance     Float?
+  distanceRate Float?
+
+  urgencyFee Float? @default(0)
+
+  totalCost Float
+
+  category String
+
+  createdAt DateTime @default(now())
+
+  jobId  Int   @unique
+  job   AIJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
 enum ReminderType {

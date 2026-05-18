@@ -43,6 +43,11 @@ type JobType = {
     unit: string
   }
 
+  volume?: {
+    value:number
+    unit:string
+  } 
+
   results?: {
     id: number
     label: string
@@ -169,46 +174,7 @@ setJobs(data.history || [])
                   <CardContent className="p-6 space-y-6">
                     {/* IMAGES */}
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* FRONT */}
-
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 font-medium">
-                          <Eye className="size-4 text-sky-600" />
-                          Front View
-                        </div>
-
-                        {frontImage && (
-                          <div className="rounded-xl overflow-hidden border bg-gray-50">
-                            <img
-                              src={`${process.env.NEXT_PUBLIC_API_URL}${frontImage.media.url}`}
-                              alt="Front View"
-                              className="w-full h-64 object-contain"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* SIDE */}
-
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 font-medium">
-                          <View className="size-4 text-sky-600" />
-                          Side View
-                        </div>
-
-                        {sideImage && (
-                          <div className="rounded-xl overflow-hidden border bg-gray-50">
-                            <img
-                              src={`${process.env.NEXT_PUBLIC_API_URL}${sideImage.media.url}`}
-                              alt="Side View"
-                              className="w-full h-64 object-contain"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
+                    
                     {/* DIMENSIONS */}
 
                     {job.dimension && (
@@ -247,7 +213,27 @@ setJobs(data.history || [])
                           </div>
                         </div>
                       </div>
+    
+    )}
+  { /* Volume */}
+  {job.volume && (
+                      <div>
+                        
+
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div className="p-5 rounded-2xl bg-sky-50 border">
+                            <p className="text-sm text-gray-500">Volume</p>
+
+                            <h2 className="text-2xl font-bold text-sky-700 mt-1">
+                              {job.volume.value}
+                              {job.volume.unit}
+                            </h2>
+                          </div>
+                        </div>
+                      </div>
                     )}
+                    
+                    
 
                     {/* DETECTIONS */}
 

@@ -1,36 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calculateLuggagePrice = void 0;
-const calculateLuggagePrice = ({ width, height, depth, durationDays, }) => {
-    const volume = width * height * depth;
-    let basePrice = 0;
-    let sizeCategory = "";
-    if (volume <= 40000) {
-        // Small luggage
-        basePrice = 99;
-        sizeCategory = "Small";
+exports.calculatePricing = void 0;
+const calculatePricing = ({ width, height, depth, distance = 0, priority = false, }) => {
+    /* ---------------- VOLUME ---------------- */
+    const volume = (width * height * depth) / 1000;
+    /* ---------------- CATEGORY ---------------- */
+    let category = "Small";
+    if (volume >= 40 && volume < 80) {
+        category = "Medium";
     }
-    else if (volume <= 100000) {
-        // Medium luggage
-        basePrice = 199;
-        sizeCategory = "Medium";
+    if (volume >= 80) {
+        category = "Large";
     }
-    else {
-        // Large luggage
-        basePrice = 349;
-        sizeCategory = "Large";
-    }
-    const dailyCharge = durationDays * 30;
-    const total = basePrice +
-        dailyCharge;
+    /* ---------------- PRICING ---------------- */
+    const baseFare = 10;
+    const volumeRate = 1.5;
+    const distanceRate = 5;
+    const urgencyFee = priority ? 150 : 0;
+    const totalCost = baseFare +
+        volume * volumeRate +
+        distance * distanceRate +
+        urgencyFee;
     return {
-        sizeCategory,
         volume,
-        breakdown: {
-            basePrice,
-            dailyCharge,
-        },
-        total,
+        category,
+        baseFare,
+        volumeRate,
+        distance,
+        distanceRate,
+        urgencyFee,
+        totalCost: Math.round(totalCost),
     };
 };
-exports.calculateLuggagePrice = calculateLuggagePrice;
+exports.calculatePricing = calculatePricing;

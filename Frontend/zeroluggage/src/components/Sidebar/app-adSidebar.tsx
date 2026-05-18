@@ -17,9 +17,8 @@ import { useSidebar } from "@/components/ui/sidebar"
 import {
   Home,
   Upload,
-  ScanFace,
-  BarChart3,
-  Eye,
+  BarChart3, 
+  IndianRupee,
   FileText,
   Boxes,
   Server,
@@ -47,6 +46,7 @@ const nav: NavItem[] = [
   { label: "Analytics", href: "/adDashboard/analytics", icon: BarChart3 },
   { label: "Monitor", href: "/adDashboard/app-monitor", icon: Server },
   { label: "Playground", href: "/adDashboard/playground", icon: Boxes },
+  { label: "Cost Estimation", href: "/adDashboard/Cost-Estimation", icon: IndianRupee },
  
 
   { label: "History", href: "/adDashboard/history", icon: History },

@@ -57,7 +57,7 @@ exports.createBooking = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             dropoffDate: new Date(dropoffDate),
             duration,
             luggageCount,
-            estimatedFare: fare,
+            estimatedFare: fare + luggageCount * 5 + 300, // Base fare + per luggage charge
             userId: req.user.id,
             luggageItems: luggageFiles && luggageFiles.length
                 ? {
