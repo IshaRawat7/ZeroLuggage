@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 /* -------------------- CORS SETUP -------------------- */
 
 const allowedOrigins = [
-  "http://localhost:3000",
+  "https://zero-lugg.vercel.app",
     
 ];
 
