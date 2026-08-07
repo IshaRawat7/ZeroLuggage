@@ -1,71 +1,309 @@
-# ZeroLuggage ✈️
+# ✈️ ZeroLuggage
 
-
-[![Next.js](https://img.shields.io/badge/Next.js-13.0-black?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.3-blue?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.3.3-blue?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-
-ZeroLuggage is a modern web application that simplifies travel planning. Explore destinations, manage travel itineraries, and enjoy a seamless user experience with real-time information at your fingertips.
+A modern **Full Stack Web Application** that simplifies luggage transportation for travelers. Users can securely book luggage transportation, make online payments, receive confirmation emails, and view pickup/drop locations on an interactive map.
 
 ---
 
 ## 🌟 Features
 
-- Browse popular travel destinations with images, descriptions, and locations.
-- Add, edit, and manage travel schedules.
-- Responsive and interactive UI using **React**, **Next.js**, and **Tailwind CSS**.
-- User authentication.
-- Integration with backend APIs for dynamic content.
-- Modern design with ShadCN UI components for enhanced UX.
+- 🔐 Secure User Authentication
+- 📦 Book and manage luggage transportation
+- 💳 Secure online payments using Razorpay
+- 📧 Automated confirmation emails
+- 🗺️ Interactive Maps using OpenStreetMap
+- 📱 Fully Responsive UI
+- 🎨 Modern interface built with ShadCN UI
+- ⚡ Fast and optimized using Next.js
 
 ---
 
-## 🛠 Tech Stack
+# 📌 Project Overview
 
-- **Frontend:** React, Next.js, Tailwind CSS, ShadCN UI
-- **Backend (Optional):** Express.js, Prisma, PostgreSQL
-- **Authentication:** User
-- **Package Manager:** npm
-- **Deployment:** Vercel and Render
+ZeroLuggage follows a **Full Stack Architecture**, where the frontend communicates with the backend through APIs, and the backend interacts with the database and third-party services.
+
+```text
+                   User
+                     │
+                     ▼
+             Next.js Frontend
+                     │
+             HTTP API Requests
+                     │
+                     ▼
+            Express.js Backend
+      ┌──────────┼─────────────┐
+      ▼          ▼             ▼
+ PostgreSQL   Razorpay      Resend
+ Database     Payments       Emails
+      │
+      ▼
+ Prisma ORM
+```
 
 ---
 
-## 📂 Project Structure
+# 🛠️ Tech Stack
 
+## 🎨 Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| React | Builds reusable UI components |
+| Next.js | React framework with routing, optimization & server-side rendering |
+| Tailwind CSS | Utility-first CSS framework for styling |
+| ShadCN UI | Beautiful pre-built UI components |
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Backend
 
-Follow these steps to run the project locally:
+| Technology | Purpose |
+|------------|---------|
+| Node.js | JavaScript Runtime |
+| Express.js | Backend framework used to create APIs |
 
-### 1️⃣ Clone the repository
+---
+
+## 🗄️ Database
+
+| Technology | Purpose |
+|------------|---------|
+| PostgreSQL | Stores all application data |
+| Prisma ORM | Connects Express with PostgreSQL using simple JavaScript queries |
+
+---
+
+## 🔐 Authentication
+
+### JWT (JSON Web Token)
+
+JWT is used to securely authenticate users.
+
+Login Flow:
+
+```text
+User Login
+     │
+     ▼
+Server verifies credentials
+     │
+     ▼
+JWT Token Generated
+     │
+     ▼
+Stored in Browser
+     │
+     ▼
+Authenticated Requests
+```
+
+---
+
+## 💳 Payment Gateway
+
+### Razorpay
+
+Razorpay allows users to make secure online payments.
+
+Supported Payments:
+
+- UPI
+- Debit Card
+- Credit Card
+- Net Banking
+- Wallets
+
+Payment Flow:
+
+```text
+Book Luggage
+      │
+      ▼
+Create Order
+      │
+      ▼
+Razorpay Checkout
+      │
+      ▼
+Payment Verification
+      │
+      ▼
+Booking Confirmed
+```
+
+---
+
+## 📧 Email Service
+
+### Resend
+
+Resend is used to send automated emails such as:
+
+- Booking Confirmation
+- Payment Success
+- Notifications
+- Account Related Emails
+
+---
+
+## 🗺️ Maps Integration
+
+### OpenStreetMap (OSM)
+
+OpenStreetMap helps users visualize:
+
+- Pickup Locations
+- Drop Locations
+- Navigation
+
+---
+
+# 📂 Project Structure
+
+```text
+ZeroLuggage
+│
+├── Frontend
+│   ├── app
+│   ├── components
+│   ├── hooks
+│   ├── lib
+│   ├── public
+│   └── styles
+│
+├── Backend
+│   ├── controllers
+│   ├── middleware
+│   ├── prisma
+│   ├── routes
+│   ├── utils
+│   └── server.js
+│
+└── README.md
+```
+
+---
+
+# 🔄 How Everything Works
+
+```text
+User
+ │
+ ▼
+Next.js Frontend
+ │
+ ▼
+Express API
+ │
+ ▼
+Prisma ORM
+ │
+ ▼
+PostgreSQL Database
+
+Additional Services
+
+Express
+ ├── Razorpay → Payments
+ ├── Resend → Emails
+ └── OpenStreetMap → Maps
+```
+
+---
+
+# 🚀 Getting Started
+
+## 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/IshaRawat7/ZeroLuggage.git
-cd ZeroLuggage/Frontend/zeroluggage
-
+cd ZeroLuggage
 ```
 
+---
 
+## 2️⃣ Install Dependencies
 
-### Run in Terminal
+### Frontend
 
 ```bash
-npm i
+cd Frontend/zeroluggage
+npm install
+```
+
+### Backend
+
+```bash
+cd Backend
+npm install
+```
+
+---
+
+## 3️⃣ Configure Environment Variables
+
+Create a `.env` file inside the backend directory and add:
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RESEND_API_KEY=
+```
+
+---
+
+## 4️⃣ Run the Backend
+
+```bash
 npm run dev
 ```
 
+---
 
-```
-Key Techno used
-1. Resend for secure email 
-2. Razorpay for payement purpose
-3. Prism as DB
-4. Next js
-5. JWT
-6. OSM Integarted (Open Street Map)
-7. Shadcn UI
+## 5️⃣ Run the Frontend
 
+```bash
+npm run dev
 ```
+
+---
+
+# 📚 Technologies Used
+
+| Technology | Why We Used It |
+|------------|----------------|
+| Next.js | Fast React Framework |
+| React | Component-based UI |
+| Tailwind CSS | Easy and responsive styling |
+| ShadCN UI | Ready-made UI components |
+| Express.js | Backend APIs |
+| PostgreSQL | Relational Database |
+| Prisma ORM | Database Queries |
+| JWT | Secure Authentication |
+| Razorpay | Online Payments |
+| Resend | Transactional Emails |
+| OpenStreetMap | Maps Integration |
+| npm | Dependency Management |
+
+---
+
+#  Built With
+
+- React
+- Next.js
+- Express.js
+- PostgreSQL
+- Prisma
+- Razorpay
+- Resend
+- OpenStreetMap
+- Tailwind CSS
+- ShadCN UI
+
+---
+
+## 👨‍💻 Developers
+
+Built as a collaborative Full Stack Web Development project to demonstrate modern web technologies and real-world application architecture.
